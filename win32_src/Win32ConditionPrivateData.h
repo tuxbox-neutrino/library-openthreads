@@ -65,9 +65,9 @@ public:
         {
             // Wake up all the waiters.
             ReleaseSemaphore(sema_,waiters_,NULL);
-			HANDLE cancelHandle = OpenThread(SYNCHRONIZE,FALSE,GetCurrentThreadId());
-			HANDLE handleSet[2] = { waiters_done_, cancelHandle};
-			WaitForMultipleObjects(2,handleSet,FALSE,INFINITE);
+            HANDLE cancelHandle = OpenThread(SYNCHRONIZE,FALSE,GetCurrentThreadId());
+            HANDLE handleSet[2] = { waiters_done_, cancelHandle};
+            WaitForMultipleObjects(2,handleSet,FALSE,INFINITE);
 
             //end of broadcasting
             was_broadcast_ = 0;
@@ -103,13 +103,13 @@ public:
         // exit the thread if requested.
         DWORD dwResult ;
 
-		HANDLE cancelHandle = OpenThread(SYNCHRONIZE,FALSE,GetCurrentThreadId());
-		HANDLE handleSet[2] = { sema_, cancelHandle};
-		dwResult = WaitForMultipleObjects(2,handleSet,FALSE,INFINITE);
+        HANDLE cancelHandle = OpenThread(SYNCHRONIZE,FALSE,GetCurrentThreadId());
+        HANDLE handleSet[2] = { sema_, cancelHandle};
+        dwResult = WaitForMultipleObjects(2,handleSet,FALSE,timeout_ms);
 
         if(dwResult != WAIT_OBJECT_0)
             result = (int)dwResult;
-		
+        
         // We're ready to return, so there's one less waiter.
         InterlockedDecrement(&waiters_);
         long w = InterlockedGet(&waiters_);
