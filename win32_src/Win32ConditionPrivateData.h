@@ -104,10 +104,22 @@ public:
 
         // wait in timeslices, giving testCancel() a change to
         // exit the thread if requested.
-        DWORD dwResult = 	cooperativeWait(sema_, timeout_ms);
+		try {
+			DWORD dwResult = 	cooperativeWait(sema_, timeout_ms);
+		    if(dwResult != WAIT_OBJECT_0)
+				result = (int)dwResult;
+		}
+		catch(...){
+			// thread is canceled in cooperative wait , do cleanup
+		    InterlockedDecrement(&waiters_);
+			long w = InterlockedGet(&waiters_);
+			int last_waiter = was_broadcast_ && w == 0;
 
-        if(dwResult != WAIT_OBJECT_0)
-            result = (int)dwResult;
+			if (last_waiter)  SetEvent(waiters_done_);
+			// rethrow
+			throw;
+		}
+
 		
         // We're ready to return, so there's one less waiter.
         InterlockedDecrement(&waiters_);
