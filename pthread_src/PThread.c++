@@ -623,6 +623,7 @@ int Thread::cancel() {
         int status = pthread_cancel(pd->tid);
         return status;
     }
+    return 0;
 }
 
 //-----------------------------------------------------------------------------
