@@ -108,6 +108,11 @@ private:
 	Thread *thread = static_cast<Thread *>(data);
 	PThreadPrivateData *pd =
 	    static_cast<PThreadPrivateData *>(thread->_prvData);
+    
+#ifdef __sgi
+    pthread_setrunon_np( pd->cpunum );
+#endif
+
 
 	ThreadCleanupStruct tcs;
 	tcs.thread = thread;
