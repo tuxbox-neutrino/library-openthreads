@@ -118,7 +118,7 @@ public:
 	    if(_quitflag == true) break;
 	    _quitmutex.unlock();
 
-		Thread::Yield();
+	    Thread::YieldCurrentThread();
 	}
 
 

@@ -28,14 +28,6 @@
 
 #include <OpenThreads/Exports>
 
-#ifdef _WIN32
-// WIN32 @#!^$%#
-	#ifdef Yield
-		#undef Yield
-	#endif
-#endif
-
-
 namespace OpenThreads {
 
 /**
@@ -125,7 +117,7 @@ public:
      *
      *  @return 0 if normal, -1 if errno set, errno code otherwise.
      */
-    static int Yield();
+    static int YieldCurrentThread();
 
     /**
      *  This method will return the ThreadPriority of the master process. 

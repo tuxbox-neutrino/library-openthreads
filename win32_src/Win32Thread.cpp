@@ -496,7 +496,7 @@ int SwitchToThread (void)
 };
 #endif
 
-int Thread::Yield()
+int Thread::YieldCurrentThread()
 {
     return SwitchToThread();
 }

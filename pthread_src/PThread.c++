@@ -788,7 +788,7 @@ void Thread::printSchedulingInfo() {
 //
 // Use: protected
 //
-int Thread::Yield() {
+int Thread::YieldCurrentThread() {
 
     return sched_yield();
 
