@@ -29,6 +29,10 @@
 
 using namespace OpenThreads;
 
+#ifdef __APPLE__
+typedef ::timespec OpenThreads::timespec;
+#endif
+
 //----------------------------------------------------------------------------
 // This cancel cleanup handler is necessary to ensure that the barrier's
 // mutex gets unlocked on cancel. Otherwise deadlocks could occur with 
