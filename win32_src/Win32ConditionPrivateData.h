@@ -63,7 +63,12 @@ public:
         {
             // Wake up all the waiters.
             ReleaseSemaphore(sema_,waiters_,NULL);
-            WaitForSingleObject(waiters_done_,INFINITE) ;
+
+            long timeout_slice_ms = 10;
+            while (WaitForSingleObject(waiters_done_,timeout_slice_ms)===WAIT_OBJECT_0)
+            {
+                if (thread) thread->testCancel() ;
+            }
             //end of broadcasting
             was_broadcast_ = 0;
         }
@@ -103,26 +108,18 @@ public:
         DWORD dwResult;
         if (timeout_ms==INFINITE)
         {
-            DWORD dwResult;
-            do {
-            
-                dwResult = WaitForSingleObject(sema_,timeout_slice_ms);
-                
+            while ((dwResult=WaitForSingleObject(sema_,timeout_slice_ms))==WAIT_OBJECT_0)
+            {
                 if (thread) thread->testCancel();
-                
-            } while (dwResult==WAIT_OBJECT_0);
+            }
         }
         else
         {
-            do {
-            
-                dwResult = WaitForSingleObject(sema_,(timeout_ms>timeout_slice_ms)?timeout_slice_ms:timeout_ms);
-                    
+            while (timeout_ms>0 && (dwResult=WaitForSingleObject(sema_,(timeout_ms>timeout_slice_ms)?timeout_slice_ms:timeout_ms))==WAIT_OBJECT_0)
+            {
                 timeout_ms -= timeout_slice_ms;
-                
                 if (thread) thread->testCancel();
-                
-            } while (dwResult==WAIT_OBJECT_0 && timeout_ms>0);
+            }
         }
        
         if(dwResult != WAIT_OBJECT_0)
