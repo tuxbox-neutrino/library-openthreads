@@ -51,7 +51,6 @@ private:
     bool stackSizeLocked;
     bool isRunning;
 
-    volatile bool isCanceled;
 	int  cancelMode; // 0 - deffered (default) 1-asynch 2-disabled  
 
     bool detached;
@@ -67,6 +66,8 @@ private:
 
 public:
 
+	HANDLE cancelEvent;
+
 	struct TlsHolder{ // thread local storage slot
 		DWORD ID;
 		TlsHolder(): ID(TlsAlloc()){
@@ -80,10 +81,7 @@ public:
 
 };
 
-
-
-
-
+DWORD cooperativeWait(HANDLE waitHandle, unsigned long timeout);
 
 
 }
