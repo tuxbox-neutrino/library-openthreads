@@ -346,9 +346,13 @@ int Thread::testCancel()
 	if(pd->cancelMode == 2)
 		return 0;
 
-	HANDLE curr = GetCurrentThread();
+// 	HANDLE curr = GetCurrentThread();
+// 	if( pd->tid != curr )
+// 		return -1;
 
-	if( pd->tid != curr )
+        // Marco's suggestion.
+	HANDLE curr = GetCurrentThreadId();
+	if( pd->uniqueId != curr )
 		return -1;
 
 	ExitThread(0);
