@@ -264,7 +264,7 @@ ifeq ($(OS),FreeBSD)
   SHARED            = -shared
   ARCH              = 32
   ARCHARGS          = 
-  INST_LOCATION   = /opt/X11R6
+  INST_LOCATION   = /usr/local
   INST_SHARE = /usr/share/OpenThreads
 endif
 
