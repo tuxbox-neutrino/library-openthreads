@@ -1,7 +1,7 @@
 TOPDIR = ../.
 include $(TOPDIR)/Make/makedefs
 
-C++FILES =  \
+CXXFILES =  \
 	WIN32Condition.cpp \
 	Win32Mutex.cpp \
 	Win32Thread.cpp \
