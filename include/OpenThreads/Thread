@@ -316,7 +316,7 @@ public:
      */
     virtual void cancelCleanup() {};
 
-	void* getImplementation(){ return _prvData;	}; 
+    void* getImplementation(){ return _prvData;	}; 
 
 private:
 
