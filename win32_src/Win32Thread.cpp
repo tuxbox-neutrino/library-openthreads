@@ -60,6 +60,8 @@ Win32ThreadPrivateData::TlsHolder Win32ThreadPrivateData::TLS;
 
 Win32ThreadPrivateData::~Win32ThreadPrivateData()
 {
+    // close thread handle
+    CloseHandle(this->tid);
 }
 
 const std::string OPENTHREAD_VERSION_STRING = "OpenThread v1.2preAlpha, WindowThreads (Public Implementation)";
@@ -118,17 +120,42 @@ namespace OpenThreads {
         // Print information related to thread schduling parameters.
         //
         static void PrintThreadSchedulingInfo(Thread *thread) {
-            // NO-OP
+            Win32ThreadPrivateData *pd =
+                static_cast<Win32ThreadPrivateData *>(thread->_prvData);
+
+            std::cout<<"Thread "<< thread <<" priority : ";
+
+            switch(thread->getSchedulePriority()) {
+            case Thread::PRIORITY_MAX:
+                std::cout<<"MAXIMAL"<<std::endl;
+                break;
+            case Thread::PRIORITY_HIGH:
+                std::cout<<"HIGH"<<std::endl;
+                break;
+            case Thread::PRIORITY_DEFAULT:
+            case Thread::PRIORITY_NOMINAL:
+                std::cout<<"NORMAL"<<std::endl;
+                break;   
+            case Thread::PRIORITY_LOW:
+                std::cout<<"LOW"<<std::endl;
+                break;       
+            case Thread::PRIORITY_MIN:
+                std::cout<<"MINIMAL"<<std::endl;
+                break;   
+            }
         }
 
         //--------------------------------------------------------------------------
-        // Set thread scheduling parameters.  Unfortunately on Linux, there's no
-        // good way to set this, as Win32Thread_setschedparam is mostly a no-op.
+        // Set thread scheduling parameters.  
+        // Note that time-critical priority is ommited :
+        // 1) It's not sensible thing to do
+        // 2) there's no enum for that in Thread interface
+        // Also, on Windows, effective thread priority is :
+        // process priority (manipulated with Get/SetProrityClass) + thread priority (here).
+        // 
         //
-        static int SetThreadSchedulingParams(Thread *data) {
+        static int SetThreadSchedulingParams(Thread *thread) {
             
-            Thread *thread = static_cast<Thread *>(data);
-
             Win32ThreadPrivateData *pd =
                 static_cast<Win32ThreadPrivateData *>(thread->_prvData);
 
@@ -151,8 +178,11 @@ namespace OpenThreads {
                 prio = THREAD_PRIORITY_IDLE;
                 break;   
             }
+
             int status = SetThreadPriority( pd->tid , prio);
-            PrintThreadSchedulingInfo(thread);   
+
+            if(getenv("OUTPUT_THREADLIB_SCHEDULING_INFO") != 0)
+	        	PrintThreadSchedulingInfo(thread);   
 
             return status!=0;
         };
