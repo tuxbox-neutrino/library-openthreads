@@ -367,7 +367,6 @@ Thread::~Thread() {
 	//---------------------------------------------------------------------
 	// Kill the thread when it is destructed
 	//
-	setCancelModeAsynchronous();
 	cancel();
     }
 
