@@ -51,6 +51,7 @@ public:
     {
         int have_waiters = 0;
         long w = InterlockedGet(&waiters_);
+        Thread* thread = Thread::CurrentThread();
         if (w > 0)
         {
           // we are broadcasting.  
@@ -67,7 +68,6 @@ public:
             long timeout_slice_ms = 10;
             while (WaitForSingleObject(waiters_done_,timeout_slice_ms)==WAIT_OBJECT_0)
             {
-                Thread* thread = Thread::CurrentThread();
                 if (thread) thread->testCancel() ;
             }
             //end of broadcasting
