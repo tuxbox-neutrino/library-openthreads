@@ -339,25 +339,30 @@ int Thread::detach()
 //
 // Use: public
 //
-int Thread::cancel() {
+int Thread::cancel()
+{
     Win32ThreadPrivateData *pd = static_cast<Win32ThreadPrivateData *> (_prvData);
 
-    if( pd->cancelMode == 2 )
-        return -1;
+    if (pd->isRunning)
+    {
+        if( pd->cancelMode == 2 )
+            return -1;
 
-    // signal all interested parties that we are going to exit
-    SetEvent(pd->cancelEvent);
+        // signal all interested parties that we are going to exit
+        SetEvent(pd->cancelEvent);
 
-    // cancelMode == 1 (asynch)-> kill em
-    // cancelMode == 0 (deffered) -> wait a little then kill em
+        // cancelMode == 1 (asynch)-> kill em
+        // cancelMode == 0 (deffered) -> wait a little then kill em
 
-//    if( (pd->cancelMode == 1) || (WaitForSingleObject(pd->tid,INFINITE)!=WAIT_OBJECT_0) )
-    if( pd->cancelMode == 1 )
-    {    
-        // did not terminate cleanly force termination
-        pd->isRunning = false;
-        return TerminateThread(pd->tid,(DWORD)-1);
+    //    if( (pd->cancelMode == 1) || (WaitForSingleObject(pd->tid,INFINITE)!=WAIT_OBJECT_0) )
+        if( pd->cancelMode == 1 )
+        {    
+            // did not terminate cleanly force termination
+            pd->isRunning = false;
+            return TerminateThread(pd->tid,(DWORD)-1);
+        }
     }
+    
     return 0;
 }
 

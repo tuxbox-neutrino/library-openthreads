@@ -617,10 +617,12 @@ int Thread::testCancel() {
 int Thread::cancel() {
 
     PThreadPrivateData *pd = static_cast<PThreadPrivateData *> (_prvData);
-    pd->isCanceled = true;
-    int status = pthread_cancel(pd->tid);
-    return status;
-
+    if (pd->isRunning)
+    {
+        pd->isCanceled = true;
+        int status = pthread_cancel(pd->tid);
+        return status;
+    }
 }
 
 //-----------------------------------------------------------------------------
