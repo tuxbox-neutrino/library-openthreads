@@ -7,6 +7,12 @@ opt   : $(LIB:=.opt)\
 debug : $(LIB:=.dbg)\
         $(EXEC:=.dbg)\
 
+static: $(LIB:=.static)\
+        $(EXEC:=.opt)\
+
+staticdebug: $(LIB:=.staticdbg)\
+        $(EXEC:=.dbg)
+
 cleandepend : cleandependopt cleandependdbg
 
 cleandependopt :
@@ -66,6 +72,9 @@ else
     $(LIB) : $(OBJS)
 		$(CXX) $(LDFLAGS) $(SHARED) $(OBJS) $(LIBS) -o $@.$(LIB_EXT)
 
+    $(STATICLIB): $(OBJS)
+	    ar rv $@ $?
+
   endif # not HP-UX
 endif # not Darwin
 
@@ -86,6 +95,14 @@ $(LIB:=.dbg) :
 	      MAKEDEPEND=Makedepend $(LIB)
 	@$(MAKE) LNSRC=$(DEBUGDIR)/$(LIB).$(LIB_EXT) LNDEST=$(LIBINST)/$(OS)$(ARCH)/$(LIB).$(LIB_EXT) __link
 
+$(LIB:=.staticdbg) : 
+	[ -d $(DEBUGDIR) ] || mkdir $(DEBUGDIR)
+	cd $(DEBUGDIR);\
+	  $(MAKE) -f ../$(MAKEFILE) "DOF=$(DBGF)" TOPDIR=../${TOPDIR} \
+	        THISDIR=../$(THISDIR)\
+	        MAKEDEPEND=Makedepend $(STATICLIB)
+	@$(MAKE) LNSRC=$(DEBUGDIR)/$(STATICLIB) LNDEST=$(LIBINST)/$(OS)$(ARCH)/$(STATICLIB) __link
+
 $(EXEC:=.opt) :
 	@[ -d $(OPTDIR) ] || mkdir $(OPTDIR)
 	@cd $(OPTDIR); \
@@ -102,6 +119,14 @@ $(LIB:=.opt) :
 	        THISDIR=../$(THISDIR)\
 	        MAKEDEPEND=Makedepend $(LIB)
 	@$(MAKE) LNSRC=$(OPTDIR)/$(LIB).$(LIB_EXT) LNDEST=$(LIBINST)/$(OS)$(ARCH)/$(LIB).$(LIB_EXT) __link
+
+$(LIB:=.static) : 
+	[ -d $(OPTDIR) ] || mkdir $(OPTDIR)
+	cd $(OPTDIR);\
+	  $(MAKE) -f ../$(MAKEFILE) DOF=$(OPTF) TOPDIR=../${TOPDIR} \
+	        THISDIR=../$(THISDIR)\
+	        MAKEDEPEND=Makedepend $(STATICLIB)
+	@$(MAKE) LNSRC=$(OPTDIR)/$(STATICLIB) LNDEST=$(LIBINST)/$(OS)$(ARCH)/$(STATICLIB) __link
 
 
 Makedepend : $(CXXFILES) $(C++FILES) $(CFILES) 

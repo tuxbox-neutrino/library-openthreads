@@ -63,6 +63,9 @@ ifeq ($(ALLOW_PRIORITY_SCHEDULING),1)
         DEF += -DALLOW_PRIORITY_SCHEDULING
 endif
 
+STATICLIB_EXT = a
+STATICLIB = $(LIB).$(STATICLIB_EXT)
+
 INC        = -I$(TOPDIR)/include 
 
 CXXFLAGS   = $(ARCHARGS) $(DOF) $(DEF) $(INC)
@@ -105,6 +108,8 @@ YFLAGS             = -d
 RECURSIVE_TARGETS = \
 	  opt\
 	  debug\
+      static\
+      staticdebug\
 	  clean\
 	  cleandepend\
 	  cleandependopt\
