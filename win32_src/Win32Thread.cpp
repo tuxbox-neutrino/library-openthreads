@@ -26,9 +26,28 @@ using std::size_t;
 
 #include "Win32ThreadPrivateData.h"
 
-static const long THREAD_CANCELED = 1;
+struct Win32ThreadCanceled{};
 
 using namespace OpenThreads;
+
+DWORD OpenThreads::cooperativeWait(HANDLE waitHandle, unsigned long timeout){
+	Thread* current = Thread::CurrentThread();
+	DWORD dwResult ;
+	if(current) 
+	{
+		HANDLE cancelHandle = static_cast<Win32ThreadPrivateData*>(current->getImplementation())->cancelEvent;
+		HANDLE handleSet[2] = {waitHandle, cancelHandle};
+
+		dwResult = WaitForMultipleObjects(2,handleSet,FALSE,timeout);
+		if(dwResult == WAIT_OBJECT_0 + 1 ) throw Win32ThreadCanceled();
+	}
+	else
+	{
+		dwResult = WaitForSingleObject(waitHandle,timeout);
+	}
+	
+	return dwResult;
+}
 
 Win32ThreadPrivateData::TlsHolder Win32ThreadPrivateData::TLS;
 
@@ -189,7 +208,7 @@ Thread::Thread() {
 
 	pd->detached = false; 
 
-    pd->isCanceled = false;
+	pd->cancelEvent = CreateEvent(NULL,TRUE,FALSE,NULL);
 
     _prvData = static_cast<void *>(pd);
 
@@ -325,12 +344,12 @@ int Thread::cancel() {
 		return -1;
 
 	// signal all interested parties that we are going to exit
-	pd->isCanceled = true;
+	SetEvent(pd->cancelEvent);
 
 	// cancelMode == 1 (asynch)-> kill em
 	// cancelMode == 0 (deffered) -> wait a little then kill em
 
-	if( (pd->cancelMode == 1) || (WaitForSingleObject(pd->tid,100)!=WAIT_OBJECT_0) )
+	if( (pd->cancelMode == 1) || (WaitForSingleObject(pd->tid,INFINITE)!=WAIT_OBJECT_0) )
 	{	
 		// did not terminate cleanly force termination
 		pd->isRunning = false;
@@ -345,7 +364,7 @@ int Thread::testCancel()
 {
     Win32ThreadPrivateData *pd = static_cast<Win32ThreadPrivateData *> (_prvData);
 	
-	if(!pd->isCanceled) return 0;
+	if(WaitForSingleObject(pd->cancelEvent,0) != WAIT_OBJECT_0) return 0;
 
 	if(pd->cancelMode == 2)
 		return 0;
@@ -357,7 +376,7 @@ int Thread::testCancel()
 
 	pd->isRunning = false;
 //	ExitThread(0);
-	throw THREAD_CANCELED;
+	throw Win32ThreadCanceled();
 
 	return 0;
 

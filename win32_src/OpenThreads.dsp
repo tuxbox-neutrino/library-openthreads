@@ -128,6 +128,10 @@ SOURCE=..\include\OpenThreads\Mutex
 # End Source File
 # Begin Source File
 
+SOURCE=..\include\OpenThreads\ScopedLock
+# End Source File
+# Begin Source File
+
 SOURCE=..\include\OpenThreads\Thread
 # End Source File
 # Begin Source File

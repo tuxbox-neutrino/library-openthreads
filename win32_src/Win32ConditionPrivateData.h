@@ -27,6 +27,9 @@
 #include <windows.h>
 #endif
 
+#include <OpenThreads/ScopedLock>
+
+#include "Win32ThreadPrivateData.h"
 
 #define InterlockedGet(x) InterlockedExchangeAdd(x,0)
 
@@ -65,9 +68,8 @@ public:
         {
             // Wake up all the waiters.
             ReleaseSemaphore(sema_,waiters_,NULL);
-            HANDLE cancelHandle = OpenThread(SYNCHRONIZE,FALSE,GetCurrentThreadId());
-            HANDLE handleSet[2] = { waiters_done_, cancelHandle};
-            WaitForMultipleObjects(2,handleSet,FALSE,INFINITE);
+
+			cooperativeWait(waiters_done_, INFINITE);
 
             //end of broadcasting
             was_broadcast_ = 0;
@@ -97,19 +99,16 @@ public:
         InterlockedIncrement(&waiters_);
 
         int result = 0;
-        external_mutex.unlock();
+
+        ReverseScopedLock<Mutex> lock(external_mutex);
 
         // wait in timeslices, giving testCancel() a change to
         // exit the thread if requested.
-        DWORD dwResult ;
-
-        HANDLE cancelHandle = OpenThread(SYNCHRONIZE,FALSE,GetCurrentThreadId());
-        HANDLE handleSet[2] = { sema_, cancelHandle};
-        dwResult = WaitForMultipleObjects(2,handleSet,FALSE,timeout_ms);
+        DWORD dwResult = 	cooperativeWait(sema_, timeout_ms);
 
         if(dwResult != WAIT_OBJECT_0)
             result = (int)dwResult;
-        
+		
         // We're ready to return, so there's one less waiter.
         InterlockedDecrement(&waiters_);
         long w = InterlockedGet(&waiters_);
@@ -118,7 +117,6 @@ public:
         if (result != -1 && last_waiter)
             SetEvent(waiters_done_);
 
-        external_mutex.lock();
         return result;
     }
 

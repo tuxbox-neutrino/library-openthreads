@@ -22,6 +22,7 @@
 
 #include  <OpenThreads/Barrier>
 #include  <OpenThreads/Thread>
+#include  <OpenThreads/ScopedLock>
 #include "Win32BarrierPrivateData.h"
 using namespace OpenThreads;
 
@@ -80,7 +81,7 @@ void Barrier::block(unsigned int numThreads) {
     if(numThreads != 0) pd->maxcnt = numThreads;
     int my_phase;
 
-    pd->lock.lock();
+    ScopedLock<Mutex> lock(pd->lock);
     my_phase = pd->phase;
     ++pd->cnt;
 
@@ -93,5 +94,4 @@ void Barrier::block(unsigned int numThreads) {
 			pd->cond.wait(&pd->lock);
 		}
 	}
-    pd->lock.unlock();
 }

@@ -26,6 +26,8 @@
 using namespace OpenThreads;
 Win32ConditionPrivateData::~Win32ConditionPrivateData()
 {
+	CloseHandle(sema_);
+	CloseHandle(waiters_done_);
 }
 
 //----------------------------------------------------------------------------
