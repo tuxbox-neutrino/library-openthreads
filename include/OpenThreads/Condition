@@ -50,28 +50,28 @@ public:
     /**
      *  Wait on a mutex.
      */
-    int wait(Mutex *mutex);
+    virtual int wait(Mutex *mutex);
 
     /**
      *  Wait on a mutex for a given amount of time (ms)
      *
      *  @return 0 if normal, -1 if errno set, errno code otherwise.
      */
-    int wait(Mutex *mutex, unsigned long int ms);
+    virtual int wait(Mutex *mutex, unsigned long int ms);
 
     /**
      *  Signal a SINGLE thread to wake if it's waiting.
      *
      *  @return 0 if normal, -1 if errno set, errno code otherwise.
      */
-    int signal();
+    virtual int signal();
 
     /**
      *  Wake all threads waiting on this condition.
      *
      *  @return 0 if normal, -1 if errno set, errno code otherwise.
      */
-    int broadcast();
+    virtual int broadcast();
 
 private:
 
