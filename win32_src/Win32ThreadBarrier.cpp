@@ -95,3 +95,45 @@ void Barrier::block(unsigned int numThreads) {
 		}
 	}
 }
+
+//----------------------------------------------------------------------------
+//
+// Description: Release the barrier, now.
+//
+// Use: public.
+//
+void Barrier::release() {
+
+    Win32BarrierPrivateData *pd =
+        static_cast<Win32BarrierPrivateData*>(_prvData);
+
+    int my_phase;
+
+    ScopedLock<Mutex> lock(pd->lock);
+    my_phase = pd->phase;
+    
+    pd->cnt = 0;                         // reset for next use
+    pd->phase = 1 - my_phase;            // toggle phase
+    pd->cond.broadcast();
+    
+
+}
+
+//----------------------------------------------------------------------------
+//
+// Description: Return the number of threads currently blocked in the barrier
+//
+// Use: public
+//
+int Barrier::numThreadsCurrentlyBlocked() {
+    
+    Win32BarrierPrivateData *pd =
+        static_cast<Win32BarrierPrivateData*>(_prvData);
+
+    int numBlocked = -1;
+    ScopedLock<Mutex> lock(pd->lock);
+    numBlocked = pd->cnt;
+    ScopedLock<Mutex> unlock(pd->lock);
+    return numBlocked;
+
+}

@@ -180,3 +180,54 @@ void Barrier::block(unsigned int numThreads) {
 #endif
 
 }
+
+//----------------------------------------------------------------------------
+//
+// Description: Release the barrier, now.
+//
+// Use: public.
+//
+void Barrier::release() {
+
+    SprocBarrierPrivateData *pd =
+        static_cast<SprocBarrierPrivateData*>(_prvData);
+
+#ifdef USE_IRIX_NATIVE_BARRIER
+
+    printf("ERROR >>>>> Barrier::release() cannot be implemented using native IRIX Barriers !!!\n");
+
+#else
+
+    int my_phase;
+    pd->_mutex.lock();
+    
+    my_phase = pd->phase;
+    
+    pd->cnt = 0;                         // reset for next use
+    pd->phase = 1 - my_phase;            // toggle phase
+    pd->_cond.broadcast();
+
+    pd->_mutex.unlock();
+
+#endif
+
+}
+
+//----------------------------------------------------------------------------
+//
+// Description: Return the number of threads currently blocked in the barrier
+//
+// Use: public
+//
+int Barrier::numThreadsCurrentlyBlocked() {
+    
+    SprocBarrierPrivateData *pd =
+        static_cast<SprocBarrierPrivateData*>(_prvData);
+
+    int numBlocked = -1;
+    pd->_mutex.lock();
+    numBlocked = pd->cnt;
+    pd->_cond.broadcast();
+    return numBlocked;
+
+}

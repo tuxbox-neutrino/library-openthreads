@@ -43,7 +43,7 @@ void barrier_cleanup_handler(void *arg) {
 
 //----------------------------------------------------------------------------
 //
-// Decription: Constructor
+// Description: Constructor
 //
 // Use: public.
 //
@@ -117,7 +117,7 @@ Barrier::Barrier(int numThreads) {
 
 //----------------------------------------------------------------------------
 //
-// Decription: Destructor
+// Description: Destructor
 //
 // Use: public.
 //
@@ -136,7 +136,7 @@ Barrier::~Barrier() {
 
 //----------------------------------------------------------------------------
 //
-// Decription: Reset the barrier to its original state
+// Description: Reset the barrier to its original state
 //
 // Use: public.
 //
@@ -152,7 +152,7 @@ void Barrier::reset() {
 
 //----------------------------------------------------------------------------
 //
-// Decription: Block until numThreads threads have entered the barrier.
+// Description: Block until numThreads threads have entered the barrier.
 //
 // Use: public.
 //
@@ -187,4 +187,47 @@ void Barrier::block(unsigned int numThreads) {
 
     pthread_mutex_unlock(&(pd->lock));
 
+}
+
+//----------------------------------------------------------------------------
+//
+// Description: Release the barrier, now.
+//
+// Use: public.
+//
+void Barrier::release() {
+
+    PThreadBarrierPrivateData *pd =
+        static_cast<PThreadBarrierPrivateData*>(_prvData);
+
+    int my_phase;
+
+    pthread_mutex_lock(&(pd->lock));
+    my_phase = pd->phase;
+    
+    pd->cnt = 0;                         // reset for next use
+    pd->phase = 1 - my_phase;            // toggle phase
+    pthread_cond_broadcast(&(pd->cond));
+    pthread_mutex_unlock(&(pd->lock));
+
+}
+
+//----------------------------------------------------------------------------
+//
+// Description: Return the number of threads currently blocked in the barrier
+//
+// Use: public
+//
+int Barrier::numThreadsCurrentlyBlocked() {
+    
+    PThreadBarrierPrivateData *pd =
+        static_cast<PThreadBarrierPrivateData*>(_prvData);
+    
+    
+    int numBlocked = -1;
+    pthread_mutex_lock(&(pd->lock));
+    numBlocked = pd->cnt;
+    pthread_mutex_unlock(&(pd->lock));
+
+    return numBlocked;
 }

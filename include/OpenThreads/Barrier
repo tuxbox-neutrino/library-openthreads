@@ -62,6 +62,17 @@ public:
      */
     virtual void block(unsigned int numThreads=0);
 
+    /**
+     *  Release the barrier, now.
+     */
+    virtual void release();
+
+    /**
+     *  Return the number of threads currently blocked in the barrier,
+     *  Return -1 if error.
+     */ 
+    virtual int numThreadsCurrentlyBlocked();
+    
 private:
 
     /**
