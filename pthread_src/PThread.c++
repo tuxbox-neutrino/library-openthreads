@@ -37,6 +37,8 @@
 #include <OpenThreads/Thread>
 #include "PThreadPrivateData.h"
 
+#include <iostream>
+
 using namespace OpenThreads;
 
 extern int errno;
@@ -363,6 +365,8 @@ Thread::~Thread() {
     PThreadPrivateData *pd = static_cast<PThreadPrivateData *>(_prvData);
 
     if(pd->isRunning) {
+
+        std::cout<<"Error: Thread "<<this<<" still running in destructor"<<std::endl;
 
 	//---------------------------------------------------------------------
 	// Kill the thread when it is destructed

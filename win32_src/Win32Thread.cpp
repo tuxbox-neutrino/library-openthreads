@@ -17,10 +17,11 @@
 // 
 
 //
-// Win32Thread.c++ - C++ Thread class built on top of posix threads.
+// Win32Thread.c++
 // ~~~~~~~~~~~
 #include <memory>
 #include <string>
+#include <iostream>
 
 using std::size_t;
 
@@ -31,22 +32,22 @@ struct Win32ThreadCanceled{};
 using namespace OpenThreads;
 
 DWORD OpenThreads::cooperativeWait(HANDLE waitHandle, unsigned long timeout){
-	Thread* current = Thread::CurrentThread();
-	DWORD dwResult ;
-	if(current) 
-	{
-		HANDLE cancelHandle = static_cast<Win32ThreadPrivateData*>(current->getImplementation())->cancelEvent;
-		HANDLE handleSet[2] = {waitHandle, cancelHandle};
+    Thread* current = Thread::CurrentThread();
+    DWORD dwResult ;
+    if(current) 
+    {
+        HANDLE cancelHandle = static_cast<Win32ThreadPrivateData*>(current->getImplementation())->cancelEvent;
+        HANDLE handleSet[2] = {waitHandle, cancelHandle};
 
-		dwResult = WaitForMultipleObjects(2,handleSet,FALSE,timeout);
-		if(dwResult == WAIT_OBJECT_0 + 1 ) throw Win32ThreadCanceled();
-	}
-	else
-	{
-		dwResult = WaitForSingleObject(waitHandle,timeout);
-	}
-	
-	return dwResult;
+        dwResult = WaitForMultipleObjects(2,handleSet,FALSE,timeout);
+        if(dwResult == WAIT_OBJECT_0 + 1 ) throw Win32ThreadCanceled();
+    }
+    else
+    {
+        dwResult = WaitForSingleObject(waitHandle,timeout);
+    }
+    
+    return dwResult;
 }
 
 Win32ThreadPrivateData::TlsHolder Win32ThreadPrivateData::TLS;
@@ -70,91 +71,91 @@ bool Thread::s_isInitialized = false;
 //
 namespace OpenThreads {
 
-	class ThreadPrivateActions {
-		//-------------------------------------------------------------------------
-		// We're friendly to Thread, so it can issue the methods.
-		//
-		friend class Thread;
-	private:
+    class ThreadPrivateActions {
+        //-------------------------------------------------------------------------
+        // We're friendly to Thread, so it can issue the methods.
+        //
+        friend class Thread;
+    private:
 
-		//-------------------------------------------------------------------------
-		// Win32Threads standard start routine.
-		//
-		static unsigned long __stdcall StartThread(void *data) {
+        //-------------------------------------------------------------------------
+        // Win32Threads standard start routine.
+        //
+        static unsigned long __stdcall StartThread(void *data) {
 
-			Thread *thread = static_cast<Thread *>(data);
-			Win32ThreadPrivateData *pd =
-				static_cast<Win32ThreadPrivateData *>(thread->_prvData);
+            Thread *thread = static_cast<Thread *>(data);
+            Win32ThreadPrivateData *pd =
+                static_cast<Win32ThreadPrivateData *>(thread->_prvData);
 
-			TlsSetValue(Win32ThreadPrivateData::TLS.ID ,data);
-			//---------------------------------------------------------------------
-			// Set the proper scheduling priorities
-			//
-			SetThreadSchedulingParams(thread);
+            TlsSetValue(Win32ThreadPrivateData::TLS.ID ,data);
+            //---------------------------------------------------------------------
+            // Set the proper scheduling priorities
+            //
+            SetThreadSchedulingParams(thread);
 
-			pd->isRunning = true;
+            pd->isRunning = true;
 
-			try{
-				thread->run();
-			}
-			catch(...)
-			{
-				// abnormal termination but must be caught in win32 anyway
-			}
+            try{
+                thread->run();
+            }
+            catch(...)
+            {
+                // abnormal termination but must be caught in win32 anyway
+            }
 
-			pd->isRunning = false;
+            pd->isRunning = false;
 
-			return 0;
-		};
+            return 0;
+        };
 
-		//-------------------------------------------------------------------------
-		// Print information related to thread schduling parameters.
-		//
-		static void PrintThreadSchedulingInfo(Thread *thread) {
-			// NO-OP
-		}
+        //-------------------------------------------------------------------------
+        // Print information related to thread schduling parameters.
+        //
+        static void PrintThreadSchedulingInfo(Thread *thread) {
+            // NO-OP
+        }
 
-		//--------------------------------------------------------------------------
-		// Set thread scheduling parameters.  Unfortunately on Linux, there's no
-		// good way to set this, as Win32Thread_setschedparam is mostly a no-op.
-		//
-		static int SetThreadSchedulingParams(Thread *data) {
-			
-			Thread *thread = static_cast<Thread *>(data);
+        //--------------------------------------------------------------------------
+        // Set thread scheduling parameters.  Unfortunately on Linux, there's no
+        // good way to set this, as Win32Thread_setschedparam is mostly a no-op.
+        //
+        static int SetThreadSchedulingParams(Thread *data) {
+            
+            Thread *thread = static_cast<Thread *>(data);
 
-			Win32ThreadPrivateData *pd =
-				static_cast<Win32ThreadPrivateData *>(thread->_prvData);
+            Win32ThreadPrivateData *pd =
+                static_cast<Win32ThreadPrivateData *>(thread->_prvData);
 
-			int prio = THREAD_PRIORITY_NORMAL;
+            int prio = THREAD_PRIORITY_NORMAL;
 
-			switch(thread->getSchedulePriority()) {
-			case Thread::PRIORITY_MAX:
-				prio = THREAD_PRIORITY_HIGHEST;
-				break;
-			case Thread::PRIORITY_HIGH:
-				prio = THREAD_PRIORITY_ABOVE_NORMAL;
-				break;
-			case Thread::PRIORITY_NOMINAL:
-				prio = THREAD_PRIORITY_NORMAL;
-				break;   
-			case Thread::PRIORITY_LOW:
-				prio = THREAD_PRIORITY_BELOW_NORMAL;
-				break;       
-			case Thread::PRIORITY_MIN:
-				prio = THREAD_PRIORITY_IDLE;
-				break;   
-			}
-			int status = SetThreadPriority( pd->tid , prio);
-			PrintThreadSchedulingInfo(thread);   
+            switch(thread->getSchedulePriority()) {
+            case Thread::PRIORITY_MAX:
+                prio = THREAD_PRIORITY_HIGHEST;
+                break;
+            case Thread::PRIORITY_HIGH:
+                prio = THREAD_PRIORITY_ABOVE_NORMAL;
+                break;
+            case Thread::PRIORITY_NOMINAL:
+                prio = THREAD_PRIORITY_NORMAL;
+                break;   
+            case Thread::PRIORITY_LOW:
+                prio = THREAD_PRIORITY_BELOW_NORMAL;
+                break;       
+            case Thread::PRIORITY_MIN:
+                prio = THREAD_PRIORITY_IDLE;
+                break;   
+            }
+            int status = SetThreadPriority( pd->tid , prio);
+            PrintThreadSchedulingInfo(thread);   
 
-			return status!=0;
-		};
-	};
+            return status!=0;
+        };
+    };
 };
 
 Thread* Thread::CurrentThread()
 {
-	return (Thread* )TlsGetValue(Win32ThreadPrivateData::TLS.ID);
+    return (Thread* )TlsGetValue(Win32ThreadPrivateData::TLS.ID);
 };
 
 //----------------------------------------------------------------------------
@@ -185,8 +186,8 @@ int Thread::GetConcurrency() {
 //
 Thread::Thread() {
 
-	// there's no need for this
-	//    if(!s_isInitialized) Init();
+    // there's no need for this
+    //    if(!s_isInitialized) Init();
 
     Win32ThreadPrivateData *pd = new Win32ThreadPrivateData();
 
@@ -198,7 +199,7 @@ Thread::Thread() {
 
     pd->isRunning = false;
 
-	pd->cancelMode = 0;
+    pd->cancelMode = 0;
 
     pd->uniqueId = 0;
 
@@ -206,9 +207,9 @@ Thread::Thread() {
 
     pd->threadPolicy = SCHEDULE_DEFAULT;
 
-	pd->detached = false; 
+    pd->detached = false; 
 
-	pd->cancelEvent = CreateEvent(NULL,TRUE,FALSE,NULL);
+    pd->cancelEvent = CreateEvent(NULL,TRUE,FALSE,NULL);
 
     _prvData = static_cast<void *>(pd);
 
@@ -224,8 +225,9 @@ Thread::Thread() {
 Thread::~Thread() {
     Win32ThreadPrivateData *pd = static_cast<Win32ThreadPrivateData *>(_prvData);
     if(pd->isRunning) {
-		pd->cancelMode = 0;
-		cancel();
+        std::cout<<"Error: Thread "<<this<<" still running in destructor"<<std::endl;
+        pd->cancelMode = 0;
+        cancel();
     }
     delete pd;
 }
@@ -237,7 +239,7 @@ Thread::~Thread() {
 //
 void Thread::Init() {
 //    if(s_isInitialized) return;
-//		s_masterThreadPriority = Thread::PRIORITY_DEFAULT;
+//        s_masterThreadPriority = Thread::PRIORITY_DEFAULT;
     s_isInitialized = true;
 }
 
@@ -285,14 +287,14 @@ int Thread::start() {
     // Prohibit the stack size from being changed.
     //
     pd->stackSizeLocked = true;
-	unsigned long ID;
+    unsigned long ID;
 
     pd->tid = CreateThread(NULL,pd->stackSize,ThreadPrivateActions::StartThread,static_cast<void *>(this),0,&ID);
 
-	pd->uniqueId = (int)ID;
+    pd->uniqueId = (int)ID;
 
     if(pd->tid == INVALID_HANDLE_VALUE) {
-		return -1;
+        return -1;
     }
 
     pd->idSet = true;
@@ -312,13 +314,13 @@ int Thread::startThread()
 //
 int Thread::join() {
     Win32ThreadPrivateData *pd = static_cast<Win32ThreadPrivateData *> (_prvData);
-	if( pd->detached ) 
-		return -1; // cannot wait for detached ;
+    if( pd->detached ) 
+        return -1; // cannot wait for detached ;
 
-	if( WaitForSingleObject(pd->tid,INFINITE) != WAIT_OBJECT_0)
-		return -1 ;
+    if( WaitForSingleObject(pd->tid,INFINITE) != WAIT_OBJECT_0)
+        return -1 ;
 
-	return 0;
+    return 0;
 }
 
 
@@ -326,8 +328,8 @@ int Thread::join() {
 int Thread::detach()
 {
     Win32ThreadPrivateData *pd = static_cast<Win32ThreadPrivateData *> (_prvData);
-	pd->detached = true; 
-	return 0;
+    pd->detached = true; 
+    return 0;
 }
 
 
@@ -340,23 +342,23 @@ int Thread::detach()
 int Thread::cancel() {
     Win32ThreadPrivateData *pd = static_cast<Win32ThreadPrivateData *> (_prvData);
 
-	if( pd->cancelMode == 2 )
-		return -1;
+    if( pd->cancelMode == 2 )
+        return -1;
 
-	// signal all interested parties that we are going to exit
-	SetEvent(pd->cancelEvent);
+    // signal all interested parties that we are going to exit
+    SetEvent(pd->cancelEvent);
 
-	// cancelMode == 1 (asynch)-> kill em
-	// cancelMode == 0 (deffered) -> wait a little then kill em
+    // cancelMode == 1 (asynch)-> kill em
+    // cancelMode == 0 (deffered) -> wait a little then kill em
 
-//	if( (pd->cancelMode == 1) || (WaitForSingleObject(pd->tid,INFINITE)!=WAIT_OBJECT_0) )
-	if( pd->cancelMode == 1 )
-	{	
-		// did not terminate cleanly force termination
-		pd->isRunning = false;
-		return TerminateThread(pd->tid,(DWORD)-1);
-	}
-	return 0;
+//    if( (pd->cancelMode == 1) || (WaitForSingleObject(pd->tid,INFINITE)!=WAIT_OBJECT_0) )
+    if( pd->cancelMode == 1 )
+    {    
+        // did not terminate cleanly force termination
+        pd->isRunning = false;
+        return TerminateThread(pd->tid,(DWORD)-1);
+    }
+    return 0;
 }
 
 
@@ -364,22 +366,22 @@ int Thread::cancel() {
 int Thread::testCancel()
 {
     Win32ThreadPrivateData *pd = static_cast<Win32ThreadPrivateData *> (_prvData);
-	
-	if(WaitForSingleObject(pd->cancelEvent,0) != WAIT_OBJECT_0) return 0;
+    
+    if(WaitForSingleObject(pd->cancelEvent,0) != WAIT_OBJECT_0) return 0;
 
-	if(pd->cancelMode == 2)
-		return 0;
+    if(pd->cancelMode == 2)
+        return 0;
 
-	DWORD curr = GetCurrentThreadId();
+    DWORD curr = GetCurrentThreadId();
 
-	if( pd->uniqueId != curr )
-		return -1;
+    if( pd->uniqueId != curr )
+        return -1;
 
-	pd->isRunning = false;
-//	ExitThread(0);
-	throw Win32ThreadCanceled();
+    pd->isRunning = false;
+//    ExitThread(0);
+    throw Win32ThreadCanceled();
 
-	return 0;
+    return 0;
 
 }
 
@@ -393,8 +395,8 @@ int Thread::testCancel()
 //
 int Thread::setCancelModeDisable() {
     Win32ThreadPrivateData *pd = static_cast<Win32ThreadPrivateData *> (_prvData);
-	pd->cancelMode = 2;
-	return 0;
+    pd->cancelMode = 2;
+    return 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -405,8 +407,8 @@ int Thread::setCancelModeDisable() {
 //
 int Thread::setCancelModeAsynchronous() {
     Win32ThreadPrivateData *pd = static_cast<Win32ThreadPrivateData *> (_prvData);
-	pd->cancelMode  = 1;
-	return 0;
+    pd->cancelMode  = 1;
+    return 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -417,7 +419,7 @@ int Thread::setCancelModeAsynchronous() {
 //
 int Thread::setCancelModeDeferred() {
     Win32ThreadPrivateData *pd = static_cast<Win32ThreadPrivateData *> (_prvData);
-	pd->cancelMode = 0;
+    pd->cancelMode = 0;
     return 0;
 }
 
@@ -433,9 +435,9 @@ int Thread::setSchedulePriority(ThreadPriority priority) {
     pd->threadPriority = priority;
 
     if(pd->isRunning) 
-		return ThreadPrivateActions::SetThreadSchedulingParams(this);
+        return ThreadPrivateActions::SetThreadSchedulingParams(this);
     else 
-		return 0;
+        return 0;
 }
 
 
@@ -462,9 +464,9 @@ int Thread::setSchedulePolicy(ThreadPolicy policy) {
     pd->threadPolicy = policy;
 
     if(pd->isRunning) 
-		return ThreadPrivateActions::SetThreadSchedulingParams(this);
+        return ThreadPrivateActions::SetThreadSchedulingParams(this);
     else 
-		return 0;
+        return 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -497,8 +499,8 @@ int Thread::setStackSize(size_t stackSize) {
 // Use: public
 //
 size_t Thread::getStackSize() {
-	Win32ThreadPrivateData *pd = static_cast<Win32ThreadPrivateData *> (_prvData);
-	return pd->stackSize;
+    Win32ThreadPrivateData *pd = static_cast<Win32ThreadPrivateData *> (_prvData);
+    return pd->stackSize;
 }
 
 //-----------------------------------------------------------------------------
@@ -520,8 +522,8 @@ void Thread::printSchedulingInfo() {
 #if _WIN32_WINNT < 0x0400 // simulate
 int SwitchToThread (void)
 {
-	Sleep(10);
-	return 0;
+    Sleep(10);
+    return 0;
 };
 #endif
 
