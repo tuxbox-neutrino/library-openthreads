@@ -1,14 +1,14 @@
 TOPDIR = ../../.
 include $(TOPDIR)/Make/makedefs 
 
-C++FILES =\
+CXXFILES =\
 	ThreadObserver.cpp \
 	ThreadReporter.cpp \
 	SimpleThreader.cpp \
 	$(NULL)
 
 INC      += -I$(TOPDIR)/include
-LIBS     += -lOpenThreadPThread
+LIBS     += -lOpenThreads
 
 EXEC = SimpleThreader
 

@@ -8,7 +8,7 @@ C++FILES =\
 	$(NULL)
 
 INC      += -I$(TOPDIR)/include -I.
-LIBS     += -lOpenThreadPThread
+LIBS     += -lOpenThreads
 
 EXEC = WorkCrew
 

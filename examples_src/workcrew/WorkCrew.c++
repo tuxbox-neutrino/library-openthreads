@@ -21,6 +21,7 @@
 #include <unistd.h>
 #include <iostream>
 #include <vector>
+#include <assert.h>
 #include "ThreadObserver.h"
 #include "ThreadReporter.h"
 
