@@ -104,6 +104,13 @@ namespace OpenThreads {
             try{
                 thread->run();
             }
+            catch(Win32ThreadCanceled&)
+            {
+                // thread is canceled do cleanup
+                try { 
+                    thread->cancelCleanup(); 
+                } catch(...) { }
+            }
             catch(...)
             {
                 // abnormal termination but must be caught in win32 anyway
@@ -416,7 +423,7 @@ int Thread::testCancel()
     if( pd->uniqueId != (int)curr )
         return -1;
 
-    pd->isRunning = false;
+//    pd->isRunning = false;
 //    ExitThread(0);
     throw Win32ThreadCanceled();
 
