@@ -96,11 +96,30 @@ public:
      */
     virtual ~Thread();
 
+#ifndef _WIN32
+
+    /**
+     *  Return a pointer to the current running thread
+     */
+    static Thread *CurrentThread();
+
+#endif
+
     /**
      *  Initialize Threading in a program.  This method must be called before
      *  you can do any threading in a program.
      */ 
     static void Init();
+
+    /**
+     *  Yield the processor.  
+     *
+     *  @note This method operates on the calling process.  And is
+     *  equivalent to calling sched_yield().
+     *
+     *  @return 0 if normal, -1 if errno set, errno code otherwise.
+     */
+    static int Yield();
 
     /**
      *  This method will return the ThreadPriority of the master process. 
@@ -298,18 +317,6 @@ public:
      *  that may have been damaged by a pre-mature cancel.  No-op by default.
      */
     virtual void cancelCleanup() {};
-
-protected:
-
-     /**
-      *  Yield the processor.  
-      *
-      *  @note This method operates on the calling process.  And is
-      *  equivalent to calling sched_yield().
-      *
-      *  @return 0 if normal, -1 if errno set, errno code otherwise.
-      */
-    int yield();
 
 private:
 

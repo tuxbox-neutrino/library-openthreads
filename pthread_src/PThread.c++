@@ -25,6 +25,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <pthread.h>
+#include <assert.h>
 
 #if defined __linux || defined __sun || defined __APPLE__
 #include <string.h>
@@ -59,6 +60,7 @@ Thread::ThreadPriority Thread::s_masterThreadPriority =
                                           Thread::PRIORITY_DEFAULT;
 
 bool Thread::s_isInitialized = false;
+pthread_key_t PThreadPrivateData::s_tls_key;
 
 struct ThreadCleanupStruct {
 
@@ -108,6 +110,10 @@ private:
 	ThreadCleanupStruct tcs;
 	tcs.thread = thread;
 	tcs.runflag = &pd->isRunning;
+
+	// Set local storage so that Thread::CurrentThread() can return the right thing
+	int status = pthread_setspecific(PThreadPrivateData::s_tls_key, thread);
+	assert(status == 0);
 
 	pthread_cleanup_push(thread_cleanup_handler, &tcs);
 
@@ -369,6 +375,15 @@ Thread::~Thread() {
 
 }
 
+Thread *Thread::CurrentThread() {
+    
+    Thread *thread = 
+	static_cast<Thread *>(pthread_getspecific(PThreadPrivateData::s_tls_key));
+
+    return thread;
+	
+}
+
 //-----------------------------------------------------------------------------
 // 
 // Description: Initialize Threading
@@ -378,6 +393,10 @@ Thread::~Thread() {
 void Thread::Init() {
 
     if(s_isInitialized) return;
+
+    // Allocate a key to be used to access thread local storage
+    int status = pthread_key_create(&PThreadPrivateData::s_tls_key, NULL);
+    assert(status == 0);
 
 #ifdef ALLOW_PRIORITY_SCHEDULING
 
@@ -770,7 +789,7 @@ void Thread::printSchedulingInfo() {
 //
 // Use: protected
 //
-int Thread::yield() {
+int Thread::Yield() {
 
     return sched_yield();
 

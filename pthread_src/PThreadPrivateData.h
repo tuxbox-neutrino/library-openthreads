@@ -67,6 +67,9 @@ private:
     volatile int uniqueId;
 
     static int nextId;
+
+    static pthread_key_t s_tls_key;
+
 };
 
 }

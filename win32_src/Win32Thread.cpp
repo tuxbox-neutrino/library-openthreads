@@ -688,7 +688,7 @@ int SwitchToThread ( void){
 
 
 
-int Thread::yield() {
+int Thread::Yield() {
 	
 	
 	
