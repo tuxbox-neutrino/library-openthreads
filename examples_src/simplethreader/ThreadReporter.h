@@ -24,8 +24,19 @@
 #ifndef _THREADREPORTER_H_
 #define _THREADREPORTER_H_
 
-#include <list.h>
+/*
+#ifdef _WIN32
+#ifndef _WINDOWS_
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#endif
+#endif
+*/
+
+#include <list>
 #include "ThreadObserver.h"
+
+using std::list;
 
 class ThreadReporter {
 
