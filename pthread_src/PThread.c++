@@ -468,6 +468,33 @@ int Thread::getProcessId() {
 
 //-----------------------------------------------------------------------------
 //
+// Description: Set the thread's processor affinity
+//
+// Use: public
+//
+int Thread::setProcessorAffinity(unsigned int cpunum)
+{
+    PThreadPrivateData *pd = static_cast<PThreadPrivateData *> (_prvData);
+    pd->cpunum = cpunum;
+#ifdef __sgi
+    int status;
+    pthread_attr_t thread_attr;
+
+    status = pthread_attr_init( &thread_attr );
+    if(status != 0) {
+        return status;
+     }
+
+    status = pthread_attr_setscope( &thread_attr, PTHREAD_SCOPE_BOUND_NP );
+    return status;
+#else
+    return -1;
+#endif
+
+}
+
+//-----------------------------------------------------------------------------
+//
 // Description: Determine if the thread is running
 //
 // Use: public

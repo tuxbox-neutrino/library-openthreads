@@ -318,6 +318,16 @@ public:
 
     void* getImplementation(){ return _prvData;	}; 
 
+    /** Thread's processor affinity method.  This binds a thread to a 
+      * processor whenever possible.   This call must be made before
+      * start() or startThread() and has no effect after the thread
+      * has been running.  In the pthreads implementation, this is only 
+      * implemented on sgi, through a pthread extension.  On other pthread 
+      * platforms this is ignored.  Returns 0 on success, implementation's 
+      * error on failure, or -1 if ignored.
+      */
+    int setProcessorAffinity( unsigned int cpunum );
+
 private:
 
     /**

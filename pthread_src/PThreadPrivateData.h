@@ -65,6 +65,8 @@ private:
 
     volatile int uniqueId;
 
+    volatile unsigned int cpunum;
+
     static int nextId;
 
     static pthread_key_t s_tls_key;
