@@ -551,6 +551,38 @@ size_t Thread::getStackSize() {
 
 //-----------------------------------------------------------------------------
 //
+// Description:  set processor affinity for the thread
+//
+// Use: public
+//
+int Thread::setProcessorAffinity( unsigned int cpunum )
+{
+    Win32ThreadPrivateData *pd = static_cast<Win32ThreadPrivateData *> (_prvData);
+    DWORD affinityMask  = 0x1 << cpunum ; // thread affinity mask
+	DWORD res = 
+		SetThreadAffinityMask 
+		( 
+			pd->tid.get(),                  // handle to thread
+			affinityMask					// thread affinity mask
+		);
+/*  
+	This one is funny.
+	This is "non-mandatory" affinity , winows will try to use dwIdealProcessor 
+	whenever possible ( when Bill's account is over 50B, maybe :-) ).
+
+	DWORD SetThreadIdealProcessor(
+	  HANDLE hThread,         // handle to the thread
+ 	  DWORD dwIdealProcessor  // ideal processor number
+	);
+*/
+	// return value 1 means call is ignored ( 9x/ME/SE )
+	if( res == 1 ) return -1;
+	// return value 0 is failure 
+	return (res == 0) ? GetLastError() : 0 ;
+}
+
+//-----------------------------------------------------------------------------
+//
 // Description:  Print the thread's scheduling information to stdout.
 //
 // Use: public
@@ -558,6 +590,7 @@ size_t Thread::getStackSize() {
 void Thread::printSchedulingInfo() {
     ThreadPrivateActions::PrintThreadSchedulingInfo(this);
 }
+
 
 //-----------------------------------------------------------------------------
 //
