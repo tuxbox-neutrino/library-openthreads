@@ -502,7 +502,7 @@ int SwitchToThread (void)
 int Thread::YieldCurrentThread()
 {
     // first things first test cancel
-    testCancel();
+    Thread::CurrentThread()->testCancel();
     
     return SwitchToThread();
 }
