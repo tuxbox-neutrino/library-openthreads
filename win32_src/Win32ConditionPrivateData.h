@@ -30,6 +30,7 @@
 #include <OpenThreads/ScopedLock>
 
 #include "Win32ThreadPrivateData.h"
+#include "HandleHolder.h"
 
 #define InterlockedGet(x) InterlockedExchangeAdd(x,0)
 
@@ -44,11 +45,12 @@ public:
     long waiters_;
 
     Win32ConditionPrivateData ()
+        :waiters_(0), 
+         sema_(CreateSemaphore(NULL,0,0x7fffffff,NULL)),
+         waiters_done_(CreateEvent(NULL,FALSE,FALSE,NULL))
     {
-        waiters_ = 0;
-        sema_ = CreateSemaphore(NULL,0,0x7fffffff,NULL);
-        waiters_done_ = CreateEvent(NULL,FALSE,FALSE,NULL);
     }
+
     ~Win32ConditionPrivateData ();
 
     inline int broadcast ()
@@ -67,9 +69,9 @@ public:
         if (have_waiters)
         {
             // Wake up all the waiters.
-            ReleaseSemaphore(sema_,waiters_,NULL);
+            ReleaseSemaphore(sema_.get(),waiters_,NULL);
 
-			cooperativeWait(waiters_done_, INFINITE);
+			cooperativeWait(waiters_done_.get(), INFINITE);
 
             //end of broadcasting
             was_broadcast_ = 0;
@@ -86,7 +88,7 @@ public:
 
         if (have_waiters)
         {
-            if( !ReleaseSemaphore(sema_,1,NULL) )
+            if( !ReleaseSemaphore(sema_.get(),1,NULL) )
                 result = -1;
         }
         return result;
@@ -105,7 +107,7 @@ public:
         // wait in timeslices, giving testCancel() a change to
         // exit the thread if requested.
 		try {
-			DWORD dwResult = 	cooperativeWait(sema_, timeout_ms);
+			DWORD dwResult = 	cooperativeWait(sema_.get(), timeout_ms);
 		    if(dwResult != WAIT_OBJECT_0)
 				result = (int)dwResult;
 		}
@@ -115,7 +117,7 @@ public:
 			long w = InterlockedGet(&waiters_);
 			int last_waiter = was_broadcast_ && w == 0;
 
-			if (last_waiter)  SetEvent(waiters_done_);
+			if (last_waiter)  SetEvent(waiters_done_.get());
 			// rethrow
 			throw;
 		}
@@ -127,7 +129,7 @@ public:
         int last_waiter = was_broadcast_ && w == 0;
 
         if (result != -1 && last_waiter)
-            SetEvent(waiters_done_);
+            SetEvent(waiters_done_.get());
 
         return result;
     }
@@ -137,13 +139,13 @@ protected:
   /// Serialize access to the waiters count.
   /// Mutex waiters_lock_;
   /// Queue up threads waiting for the condition to become signaled.
-  HANDLE sema_;
+  HandleHolder sema_;
   /**
    * An auto reset event used by the broadcast/signal thread to wait
    * for the waiting thread(s) to wake up and get a chance at the
    * semaphore.
    */
-  HANDLE waiters_done_;
+  HandleHolder waiters_done_;
   /// Keeps track of whether we were broadcasting or just signaling.
   size_t was_broadcast_;
 };

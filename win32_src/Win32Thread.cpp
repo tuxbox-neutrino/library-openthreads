@@ -42,7 +42,7 @@ DWORD OpenThreads::cooperativeWait(HANDLE waitHandle, unsigned long timeout){
     DWORD dwResult ;
     if(current) 
     {
-        HANDLE cancelHandle = static_cast<Win32ThreadPrivateData*>(current->getImplementation())->cancelEvent;
+        HANDLE cancelHandle = static_cast<Win32ThreadPrivateData*>(current->getImplementation())->cancelEvent.get();
         HANDLE handleSet[2] = {waitHandle, cancelHandle};
 
         dwResult = WaitForMultipleObjects(2,handleSet,FALSE,timeout);
@@ -60,8 +60,6 @@ Win32ThreadPrivateData::TlsHolder Win32ThreadPrivateData::TLS;
 
 Win32ThreadPrivateData::~Win32ThreadPrivateData()
 {
-    // close thread handle
-    CloseHandle(this->tid);
 }
 
 const std::string OPENTHREAD_VERSION_STRING = "OpenThread v1.2preAlpha, WindowThreads (Public Implementation)";
@@ -179,7 +177,7 @@ namespace OpenThreads {
                 break;   
             }
 
-            int status = SetThreadPriority( pd->tid , prio);
+            int status = SetThreadPriority( pd->tid.get(), prio);
 
             if(getenv("OUTPUT_THREADLIB_SCHEDULING_INFO") != 0)
 	        	PrintThreadSchedulingInfo(thread);   
@@ -245,7 +243,7 @@ Thread::Thread() {
 
     pd->detached = false; 
 
-    pd->cancelEvent = CreateEvent(NULL,TRUE,FALSE,NULL);
+    pd->cancelEvent.set(CreateEvent(NULL,TRUE,FALSE,NULL));
 
     _prvData = static_cast<void *>(pd);
 
@@ -325,11 +323,11 @@ int Thread::start() {
     pd->stackSizeLocked = true;
     unsigned long ID;
 
-    pd->tid = CreateThread(NULL,pd->stackSize,ThreadPrivateActions::StartThread,static_cast<void *>(this),0,&ID);
+    pd->tid.set( CreateThread(NULL,pd->stackSize,ThreadPrivateActions::StartThread,static_cast<void *>(this),0,&ID));
 
     pd->uniqueId = (int)ID;
 
-    if(pd->tid == INVALID_HANDLE_VALUE) {
+    if(!pd->tid) {
         return -1;
     }
 
@@ -353,7 +351,7 @@ int Thread::join() {
     if( pd->detached ) 
         return -1; // cannot wait for detached ;
 
-    if( WaitForSingleObject(pd->tid,INFINITE) != WAIT_OBJECT_0)
+    if( WaitForSingleObject(pd->tid.get(),INFINITE) != WAIT_OBJECT_0)
         return -1 ;
 
     return 0;
@@ -385,7 +383,7 @@ int Thread::cancel()
             return -1;
 
         // signal all interested parties that we are going to exit
-        SetEvent(pd->cancelEvent);
+        SetEvent(pd->cancelEvent.get());
 
         // cancelMode == 1 (asynch)-> kill em
         // cancelMode == 0 (deffered) -> wait a little then kill em
@@ -395,7 +393,7 @@ int Thread::cancel()
         {    
             // did not terminate cleanly force termination
             pd->isRunning = false;
-            return TerminateThread(pd->tid,(DWORD)-1);
+            return TerminateThread(pd->tid.get(),(DWORD)-1);
         }
     }
     
@@ -408,7 +406,7 @@ int Thread::testCancel()
 {
     Win32ThreadPrivateData *pd = static_cast<Win32ThreadPrivateData *> (_prvData);
     
-    if(WaitForSingleObject(pd->cancelEvent,0) != WAIT_OBJECT_0) return 0;
+    if(WaitForSingleObject(pd->cancelEvent.get(),0) != WAIT_OBJECT_0) return 0;
 
     if(pd->cancelMode == 2)
         return 0;

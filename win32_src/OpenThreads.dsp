@@ -124,6 +124,10 @@ SOURCE=..\include\OpenThreads\Exports
 # End Source File
 # Begin Source File
 
+SOURCE=.\HandleHolder.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\include\OpenThreads\Mutex
 # End Source File
 # Begin Source File

@@ -28,6 +28,7 @@
 #endif
 
 #include <OpenThreads/Thread>
+#include "HandleHolder.h"
 
 namespace OpenThreads {
 
@@ -60,13 +61,13 @@ private:
 
     Thread::ThreadPolicy threadPolicy;
 
-    HANDLE tid;
+    HandleHolder tid;
 
     int uniqueId;
 
 public:
 
-	HANDLE cancelEvent;
+	HandleHolder cancelEvent;
 
 	struct TlsHolder{ // thread local storage slot
 		DWORD ID;
@@ -85,7 +86,6 @@ DWORD cooperativeWait(HANDLE waitHandle, unsigned long timeout);
 
 
 }
-
 
 
 
