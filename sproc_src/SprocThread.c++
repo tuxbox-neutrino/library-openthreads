@@ -504,6 +504,14 @@ int Thread::start() {
 
 //-----------------------------------------------------------------------------
 //
+// Description: Alternate thread start routine.
+//
+// Use: public
+//
+int Thread::startThread() { return start(); }
+
+//-----------------------------------------------------------------------------
+//
 // Description: Join the thread.
 //
 // Use: public
