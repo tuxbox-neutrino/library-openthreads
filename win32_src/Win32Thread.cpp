@@ -324,7 +324,10 @@ int Thread::cancel() {
 	pd->isCanceled = true;
 
 	// wait for 5 sec
-	if( (pd->cancelMode == 1) || WaitForSingleObject(pd->tid, 5000) != WAIT_OBJECT_0)
+//	if( (pd->cancelMode == 1) || WaitForSingleObject(pd->tid, 5000) != WAIT_OBJECT_0)
+
+        // assume testCancel is called correctly by Barrier/Condition or user code.
+	if( (pd->cancelMode == 1) )
 	{	
 		// did not terminate cleanly force termination
 		return TerminateThread(pd->tid,(DWORD)-1);
@@ -498,6 +501,9 @@ int SwitchToThread (void)
 
 int Thread::YieldCurrentThread()
 {
+    // first things first test cancel
+    testCancel();
+    
     return SwitchToThread();
 }
 
