@@ -35,81 +35,113 @@ class Condition;
 
 class Win32ConditionPrivateData {
 public:
-	friend class Condition;
-	/// number of waiters.
-	long waiters_;
+    friend class Condition;
+    /// number of waiters.
+    long waiters_;
 
-	Win32ConditionPrivateData ()
-	{
-		waiters_ = 0;
-		sema_ = CreateSemaphore(NULL,0,0x7fffffff,NULL);
-		waiters_done_ = CreateEvent(NULL,FALSE,FALSE,NULL);
-	}
-	~Win32ConditionPrivateData ();
+    Win32ConditionPrivateData ()
+    {
+        waiters_ = 0;
+        sema_ = CreateSemaphore(NULL,0,0x7fffffff,NULL);
+        waiters_done_ = CreateEvent(NULL,FALSE,FALSE,NULL);
+    }
+    ~Win32ConditionPrivateData ();
 
-	inline int broadcast ()
-	{
-  	    int have_waiters = 0;
-		long w = InterlockedGet(&waiters_);
-		if (w > 0)
-		{
-		  // we are broadcasting.  
-	      was_broadcast_ = 1;
-		  have_waiters = 1;
-		}
+    inline int broadcast ()
+    {
+          int have_waiters = 0;
+        long w = InterlockedGet(&waiters_);
+        if (w > 0)
+        {
+          // we are broadcasting.  
+          was_broadcast_ = 1;
+          have_waiters = 1;
+        }
 
-		int result = 0;
-		if (have_waiters)
-	    {
-			// Wake up all the waiters.
-			ReleaseSemaphore(sema_,waiters_,NULL);
-			WaitForSingleObject(waiters_done_,INFINITE) ;
-			//end of broadcasting
-			was_broadcast_ = 0;
-	    }
-		return result;
-	}
+        int result = 0;
+        if (have_waiters)
+        {
+            // Wake up all the waiters.
+            ReleaseSemaphore(sema_,waiters_,NULL);
+            WaitForSingleObject(waiters_done_,INFINITE) ;
+            //end of broadcasting
+            was_broadcast_ = 0;
+        }
+        return result;
+    }
 
-	inline int signal()
-	{
-		long w = InterlockedGet(&waiters_);
-	    int have_waiters = w > 0;
+    inline int signal()
+    {
+        long w = InterlockedGet(&waiters_);
+        int have_waiters = w > 0;
  
-		int result = 0;
+        int result = 0;
 
-		if (have_waiters)
-	    {
-			if( !ReleaseSemaphore(sema_,1,NULL) )
-				result = -1;
-	    }
-		return result;
-	}
+        if (have_waiters)
+        {
+            if( !ReleaseSemaphore(sema_,1,NULL) )
+                result = -1;
+        }
+        return result;
+    }
 
-	inline int wait (Mutex& external_mutex, long timeout_ms)
-	{
+    inline int wait (Mutex& external_mutex, long timeout_ms)
+    {
+    
+        Thread* thread = Thread::CurrentThread();
+        if (thread) thread->testCancel();
 
-		// Prevent race conditions on the <waiters_> count.
-		InterlockedIncrement(&waiters_);
+        // Prevent race conditions on the <waiters_> count.
+        InterlockedIncrement(&waiters_);
 
-		int result = 0;
+        int result = 0;
         external_mutex.unlock();
 
-		DWORD dwResult = WaitForSingleObject(sema_,timeout_ms);
-		if(dwResult != WAIT_OBJECT_0)
-			result = (int)dwResult;
+        // wait in timeslices, giving testCancel() a change to
+        // exit the thread if requested.
+        long timeout_slice_ms = 10;
+        DWORD dwResult;
+        if (timeout_ms==INFINITE)
+        {
+            DWORD dwResult;
+            do {
+            
+                dwResult = WaitForSingleObject(sema_,timeout_slice_ms);
+                
+                if (thread) thread->testCancel();
+                
+            } while (dwResult==WAIT_OBJECT_0);
+        }
+        else
+        {
+            do {
+            
+                dwResult = WaitForSingleObject(sema_,(timeout_ms>timeout_slice_ms)?timeout_slice_ms:timeout_ms);
+                    
+                timeout_ms -= timeout_slice_ms;
+                
+                if (thread) thread->testCancel();
+                
+            } while (dwResult==WAIT_OBJECT_0 && timeout_ms>0);
+        }
+       
+        if(dwResult != WAIT_OBJECT_0)
+            result = (int)dwResult;
 
-		// We're ready to return, so there's one less waiter.
-		InterlockedDecrement(&waiters_);
-		long w = InterlockedGet(&waiters_);
-		int last_waiter = was_broadcast_ && w == 0;
+        // We're ready to return, so there's one less waiter.
+        InterlockedDecrement(&waiters_);
+        long w = InterlockedGet(&waiters_);
+        int last_waiter = was_broadcast_ && w == 0;
 
-		if (result != -1 && last_waiter)
-			SetEvent(waiters_done_);
+        if (result != -1 && last_waiter)
+            SetEvent(waiters_done_);
 
-		external_mutex.lock();
-		return result;
-	}
+        external_mutex.lock();
+        return result;
+    }
+
 protected:
+
   /// Serialize access to the waiters count.
   /// Mutex waiters_lock_;
   /// Queue up threads waiting for the condition to become signaled.

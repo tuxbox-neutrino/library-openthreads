@@ -74,7 +74,8 @@ void Barrier::reset() {
 void Barrier::block(unsigned int numThreads) {
 
     // first things first test for cancel.
-    Thread::CurrentThread()->testCancel();
+    Thread* thread = Thread::CurrentThread();
+    if (thread) thread->testCancel();
 
     Win32BarrierPrivateData *pd =
         static_cast<Win32BarrierPrivateData*>(_prvData);
@@ -93,10 +94,7 @@ void Barrier::block(unsigned int numThreads) {
 		pd->cond.broadcast();
     }else{ 
 	    while (pd->phase == my_phase) {
-            
-                        // check for cancel.
-                        Thread::CurrentThread()->testCancel();
-                        
+                                    
 			pd->cond.wait(&pd->lock);
 
 		}

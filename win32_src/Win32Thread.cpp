@@ -502,7 +502,8 @@ int SwitchToThread (void)
 int Thread::YieldCurrentThread()
 {
     // first things first test cancel
-    Thread::CurrentThread()->testCancel();
+    Thread* thread = Thread::CurrentThread();
+    if (thread) thread->testCancel();
     
     return SwitchToThread();
 }
