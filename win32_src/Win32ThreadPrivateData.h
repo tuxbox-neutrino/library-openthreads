@@ -64,7 +64,6 @@ private:
     HANDLE tid;
 
     int uniqueId;
-    static int nextId;
 
 public:
 

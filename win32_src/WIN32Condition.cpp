@@ -60,10 +60,6 @@ Condition::~Condition() {
 //
 int Condition::wait(Mutex *mutex) {
 
-    // first things first test for cancel.
-    Thread* thread = Thread::CurrentThread();
-    if (thread) thread->testCancel();
-
     Win32ConditionPrivateData *pd =
         static_cast<Win32ConditionPrivateData *>(_prvData);
 
@@ -76,10 +72,6 @@ int Condition::wait(Mutex *mutex) {
 // Use: public.
 //
 int Condition::wait(Mutex *mutex, unsigned long ms) {
-
-    // first things first test for cancel.
-    Thread* thread = Thread::CurrentThread();
-    if (thread) thread->testCancel();
 
     Win32ConditionPrivateData *pd =
         static_cast<Win32ConditionPrivateData *>(_prvData);
@@ -94,10 +86,6 @@ int Condition::wait(Mutex *mutex, unsigned long ms) {
 //
 int Condition::signal() {
 
-    // first things first test for cancel.
-    Thread* thread = Thread::CurrentThread();
-    if (thread) thread->testCancel();
-
     Win32ConditionPrivateData *pd =
         static_cast<Win32ConditionPrivateData *>(_prvData);
     return pd->signal();
@@ -109,10 +97,6 @@ int Condition::signal() {
 // Use: public.
 //
 int Condition::broadcast() {
-
-    // first things first test for cancel.
-    Thread* thread = Thread::CurrentThread();
-    if (thread) thread->testCancel();
 
     Win32ConditionPrivateData *pd =
         static_cast<Win32ConditionPrivateData *>(_prvData);

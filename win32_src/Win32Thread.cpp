@@ -26,6 +26,8 @@ using std::size_t;
 
 #include "Win32ThreadPrivateData.h"
 
+static const long THREAD_CANCELED = 1;
+
 using namespace OpenThreads;
 
 Win32ThreadPrivateData::TlsHolder Win32ThreadPrivateData::TLS;
@@ -72,7 +74,6 @@ namespace OpenThreads {
 			SetThreadSchedulingParams(thread);
 
 			pd->isRunning = true;
-			pd->isCanceled = false;
 
 			try{
 				thread->run();
@@ -83,6 +84,7 @@ namespace OpenThreads {
 			}
 
 			pd->isRunning = false;
+
 			return 0;
 		};
 
@@ -177,8 +179,6 @@ Thread::Thread() {
 
     pd->isRunning = false;
 
-    pd->isCanceled = false;
-
 	pd->cancelMode = 0;
 
     pd->uniqueId = 0;
@@ -188,6 +188,8 @@ Thread::Thread() {
     pd->threadPolicy = SCHEDULE_DEFAULT;
 
 	pd->detached = false; 
+
+    pd->isCanceled = false;
 
     _prvData = static_cast<void *>(pd);
 
@@ -321,13 +323,14 @@ int Thread::cancel() {
 
 	if( pd->cancelMode == 2 )
 		return -1;
+
+	// signal all interested parties that we are going to exit
 	pd->isCanceled = true;
 
-	// wait for 5 sec
-//	if( (pd->cancelMode == 1) || WaitForSingleObject(pd->tid, 5000) != WAIT_OBJECT_0)
+	// cancelMode == 1 (asynch)-> kill em
+	// cancelMode == 0 (deffered) -> wait a little then kill em
 
-        // assume testCancel is called correctly by Barrier/Condition or user code.
-	if( (pd->cancelMode == 1) )
+	if( (pd->cancelMode == 1) || (WaitForSingleObject(pd->tid,100)!=WAIT_OBJECT_0) )
 	{	
 		// did not terminate cleanly force termination
 		pd->isRunning = false;
@@ -341,8 +344,8 @@ int Thread::cancel() {
 int Thread::testCancel()
 {
     Win32ThreadPrivateData *pd = static_cast<Win32ThreadPrivateData *> (_prvData);
-
-	if(!pd->isCanceled ) return 0;
+	
+	if(!pd->isCanceled) return 0;
 
 	if(pd->cancelMode == 2)
 		return 0;
@@ -353,7 +356,8 @@ int Thread::testCancel()
 		return -1;
 
 	pd->isRunning = false;
-	ExitThread(0);
+//	ExitThread(0);
+	throw THREAD_CANCELED;
 
 	return 0;
 
@@ -503,10 +507,6 @@ int SwitchToThread (void)
 
 int Thread::YieldCurrentThread()
 {
-    // first things first test cancel
-    Thread* thread = Thread::CurrentThread();
-    if (thread) thread->testCancel();
-    
     return SwitchToThread();
 }
 

@@ -27,6 +27,7 @@
 #include <windows.h>
 #endif
 
+
 #define InterlockedGet(x) InterlockedExchangeAdd(x,0)
 
 namespace OpenThreads {
@@ -51,7 +52,7 @@ public:
     {
         int have_waiters = 0;
         long w = InterlockedGet(&waiters_);
-        Thread* thread = Thread::CurrentThread();
+
         if (w > 0)
         {
           // we are broadcasting.  
@@ -64,12 +65,10 @@ public:
         {
             // Wake up all the waiters.
             ReleaseSemaphore(sema_,waiters_,NULL);
+			HANDLE cancelHandle = OpenThread(SYNCHRONIZE,FALSE,GetCurrentThreadId());
+			HANDLE handleSet[2] = { waiters_done_, cancelHandle};
+			WaitForMultipleObjects(2,handleSet,FALSE,INFINITE);
 
-            long timeout_slice_ms = 10;
-            while (WaitForSingleObject(waiters_done_,timeout_slice_ms)==WAIT_OBJECT_0)
-            {
-                if (thread) thread->testCancel() ;
-            }
             //end of broadcasting
             was_broadcast_ = 0;
         }
@@ -94,9 +93,6 @@ public:
     inline int wait (Mutex& external_mutex, long timeout_ms)
     {
     
-        Thread* thread = Thread::CurrentThread();
-        if (thread) thread->testCancel();
-
         // Prevent race conditions on the <waiters_> count.
         InterlockedIncrement(&waiters_);
 
@@ -105,27 +101,15 @@ public:
 
         // wait in timeslices, giving testCancel() a change to
         // exit the thread if requested.
-        long timeout_slice_ms = 10;
-        DWORD dwResult;
-        if (timeout_ms==INFINITE)
-        {
-            while ((dwResult=WaitForSingleObject(sema_,timeout_slice_ms))==WAIT_OBJECT_0)
-            {
-                if (thread) thread->testCancel();
-            }
-        }
-        else
-        {
-            while (timeout_ms>0 && (dwResult=WaitForSingleObject(sema_,(timeout_ms>timeout_slice_ms)?timeout_slice_ms:timeout_ms))==WAIT_OBJECT_0)
-            {
-                timeout_ms -= timeout_slice_ms;
-                if (thread) thread->testCancel();
-            }
-        }
-       
+        DWORD dwResult ;
+
+		HANDLE cancelHandle = OpenThread(SYNCHRONIZE,FALSE,GetCurrentThreadId());
+		HANDLE handleSet[2] = { sema_, cancelHandle};
+		dwResult = WaitForMultipleObjects(2,handleSet,FALSE,INFINITE);
+
         if(dwResult != WAIT_OBJECT_0)
             result = (int)dwResult;
-
+		
         // We're ready to return, so there's one less waiter.
         InterlockedDecrement(&waiters_);
         long w = InterlockedGet(&waiters_);
