@@ -330,6 +330,7 @@ int Thread::cancel() {
 	if( (pd->cancelMode == 1) )
 	{	
 		// did not terminate cleanly force termination
+		pd->isRunning = false;
 		return TerminateThread(pd->tid,(DWORD)-1);
 	}
 	return 0;
@@ -346,15 +347,12 @@ int Thread::testCancel()
 	if(pd->cancelMode == 2)
 		return 0;
 
-// 	HANDLE curr = GetCurrentThread();
-// 	if( pd->tid != curr )
-// 		return -1;
+	DWORD curr = GetCurrentThreadId();
 
-        // Marco's suggestion.
-	HANDLE curr = GetCurrentThreadId();
 	if( pd->uniqueId != curr )
 		return -1;
 
+	pd->isRunning = false;
 	ExitThread(0);
 
 	return 0;

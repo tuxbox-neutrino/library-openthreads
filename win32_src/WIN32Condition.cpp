@@ -20,6 +20,7 @@
 // ~~~~~~~~~~~~~~~~~~~~
 //
 #include <OpenThreads/Condition>
+#include  <OpenThreads/Thread>
 #include "Win32ConditionPrivateData.h"
 
 using namespace OpenThreads;

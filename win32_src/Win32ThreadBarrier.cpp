@@ -21,6 +21,7 @@
 //
 
 #include  <OpenThreads/Barrier>
+#include  <OpenThreads/Thread>
 #include "Win32BarrierPrivateData.h"
 using namespace OpenThreads;
 

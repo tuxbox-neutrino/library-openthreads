@@ -65,7 +65,7 @@ public:
             ReleaseSemaphore(sema_,waiters_,NULL);
 
             long timeout_slice_ms = 10;
-            while (WaitForSingleObject(waiters_done_,timeout_slice_ms)===WAIT_OBJECT_0)
+            while (WaitForSingleObject(waiters_done_,timeout_slice_ms)==WAIT_OBJECT_0)
             {
                 if (thread) thread->testCancel() ;
             }
