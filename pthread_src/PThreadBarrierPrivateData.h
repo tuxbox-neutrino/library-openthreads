@@ -24,10 +24,10 @@
 #ifndef _PTHREADBARRIERPRIVATEDATA_H_
 #define _PTHREADBARRIERPRIVATEDATA_H_
 
-namespace OpenThreads {
-
 #include <pthread.h>
 #include <OpenThreads/Barrier>
+
+namespace OpenThreads {
 
 class PThreadBarrierPrivateData {
 

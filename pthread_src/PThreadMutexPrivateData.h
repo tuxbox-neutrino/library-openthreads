@@ -24,10 +24,10 @@
 #ifndef _PTHREADMUTEXPRIVATEDATA_H_
 #define _PTHREADMUTEXPRIVATEDATA_H_
 
-namespace OpenThreads {
-
 #include <pthread.h>
 #include <OpenThreads/Mutex>
+
+namespace OpenThreads {
 
 class PThreadMutexPrivateData {
 

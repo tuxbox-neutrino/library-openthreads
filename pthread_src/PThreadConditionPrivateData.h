@@ -24,10 +24,10 @@
 #ifndef _PTHREADCONDITIONPRIVATEDATA_H_
 #define _PTHREADCONDITIONPRIVATEDATA_H_
 
-namespace OpenThreads {
-
 #include <pthread.h>
 #include <OpenThreads/Condition>
+
+namespace OpenThreads {
 
 class PThreadConditionPrivateData {
 

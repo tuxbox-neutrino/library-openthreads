@@ -23,11 +23,10 @@
 #ifndef _PTHREADPRIVATEDATA_H_
 #define _PTHREADPRIVATEDATA_H_
 
-namespace OpenThreads {
-
 #include <pthread.h>
 #include <OpenThreads/Thread>
 
+namespace OpenThreads {
 
 class PThreadPrivateData {
 
