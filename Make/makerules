@@ -58,6 +58,9 @@ ifeq ($(OS),Darwin)
 	  $(CXX) $(LDFLAGS) -dynamiclib $(OBJS) $(LIBS) -o $@.$(LIB_EXT)
 	  touch $@
 
+$(STATICLIB): $(OBJS)
+	ar rv $@ $?
+
 else
 
   ifeq ($(OS),HP-UX)
