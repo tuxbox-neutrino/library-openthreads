@@ -27,7 +27,7 @@
 #include <windows.h>
 #endif
 
-#include <OpenThreads/Mutex>
+#define InterlockedGet(x) InterlockedExchangeAdd(x,0)
 
 namespace OpenThreads {
 
@@ -38,6 +38,7 @@ public:
 	friend class Condition;
 	/// number of waiters.
 	long waiters_;
+
 	Win32ConditionPrivateData ()
 	{
 		waiters_ = 0;
@@ -48,15 +49,14 @@ public:
 
 	inline int broadcast ()
 	{
-		waiters_lock_.lock();
   	    int have_waiters = 0;
-		if (waiters_ > 0)
+		long w = InterlockedGet(&waiters_);
+		if (w > 0)
 		{
 		  // we are broadcasting.  
 	      was_broadcast_ = 1;
 		  have_waiters = 1;
 		}
-		waiters_lock_.unlock();
 
 		int result = 0;
 		if (have_waiters)
@@ -72,9 +72,8 @@ public:
 
 	inline int signal()
 	{
-		waiters_lock_.lock();
-	    int have_waiters = waiters_ > 0;
-		waiters_lock_.unlock();
+		long w = InterlockedGet(&waiters_);
+	    int have_waiters = w > 0;
  
 		int result = 0;
 
@@ -90,9 +89,7 @@ public:
 	{
 
 		// Prevent race conditions on the <waiters_> count.
-		waiters_lock_.lock();
-		waiters_++;
-		waiters_lock_.unlock();
+		InterlockedIncrement(&waiters_);
 
 		int result = 0;
         external_mutex.unlock();
@@ -101,14 +98,10 @@ public:
 		if(dwResult != WAIT_OBJECT_0)
 			result = (int)dwResult;
 
-		// Reacquire lock to avoid race conditions on the <waiters_> count.
-		waiters_lock_.lock();
 		// We're ready to return, so there's one less waiter.
-		waiters_--;
-		int last_waiter = was_broadcast_ && waiters_ == 0;
-		// Release the lock so that other collaborating threads can make
-		// progress.
-		waiters_lock_.unlock();
+		InterlockedDecrement(&waiters_);
+		long w = InterlockedGet(&waiters_);
+		int last_waiter = was_broadcast_ && w == 0;
 
 		if (result != -1 && last_waiter)
 			SetEvent(waiters_done_);
@@ -118,7 +111,7 @@ public:
 	}
 protected:
   /// Serialize access to the waiters count.
-  Mutex waiters_lock_;
+  /// Mutex waiters_lock_;
   /// Queue up threads waiting for the condition to become signaled.
   HANDLE sema_;
   /**
@@ -131,7 +124,7 @@ protected:
   size_t was_broadcast_;
 };
 
-
+#undef InterlockedGet
 
 }
 
