@@ -28,6 +28,14 @@
 
 #include <OpenThreads/Exports>
 
+#ifdef _WIN32
+// WIN32 @#!^$%#
+	#ifdef Yield
+		#undef Yield
+	#endif
+#endif
+
+
 namespace OpenThreads {
 
 /**
@@ -96,14 +104,12 @@ public:
      */
     virtual ~Thread();
 
-#ifndef _WIN32
 
     /**
      *  Return a pointer to the current running thread
      */
     static Thread *CurrentThread();
 
-#endif
 
     /**
      *  Initialize Threading in a program.  This method must be called before
