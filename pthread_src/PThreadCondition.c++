@@ -35,7 +35,10 @@
 using namespace OpenThreads;
 
 #ifdef __APPLE__
-typedef ::timespec OpenThreads::timespec;
+struct OpenThreads::timespec {
+    time_t	tv_sec;		/* seconds */
+    int32_t	tv_nsec;	/* and nanoseconds */
+};
 #endif
 
 #if defined(_MSC_VER) || defined(__MINGW32__)
@@ -164,7 +167,11 @@ int Condition::wait(Mutex *mutex, unsigned long int ms) {
     // Wait time is now + ms milliseconds
     unsigned int sec = ms / 1000;
     unsigned int nsec = (ms % 1000) * 1000;
+#ifdef __APPLE__
+    struct OpenThreads::timespec abstime;
+#else
     struct timespec abstime;
+#endif
     abstime.tv_sec = now.tv_sec + sec;
     abstime.tv_nsec = now.tv_usec*1000 + nsec;
 
