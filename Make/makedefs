@@ -221,7 +221,7 @@ SYSARCH           := $(shell arch)
     endif
 
 ifeq ("$(COMPILE_OSG_OP_OT_WITH_SONAMES)","YES")
-    LDFLAGS         += -Wl,-soname -Wl,$@.0
+    LDFLAGS         += -Wl,-soname -Wl,$@.$(LIB_EXT).0
 endif
 
     ###DEF               += -fPIC
