@@ -59,12 +59,14 @@ HEADER_FILES= \
 	../include/OpenThreads/Condition \
 	../include/OpenThreads/Exports \
 	../include/OpenThreads/Mutex \
+	../include/OpenThreads/ScopedLock \
 	../include/OpenThreads/Thread \
 	Win32BarrierPrivateData.h \
 	Win32Condition.h \
 	Win32ConditionPrivateData.h \
 	Win32MutexPrivateData.h \
-	Win32ThreadPrivateData.h
+	Win32ThreadPrivateData.h \
+	HandleHolder.h
 
 RESOURCE_FILES=
 
