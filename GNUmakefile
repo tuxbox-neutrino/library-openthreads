@@ -6,7 +6,11 @@ include $(TOPDIR)/Make/makedefs
 ifeq ($(OS),MINGW)
 	SRC_DIR = win32_src
 else
-	SRC_DIR = pthread_src
+    ifeq ($(OS),CYGWIN)
+        SRC_DIR = win32_src
+    else
+    	SRC_DIR = pthread_src
+   	endif
 endif
 
 DIRS = $(SRC_DIR) \
