@@ -379,7 +379,7 @@ int Thread::testCancel()
 
     DWORD curr = GetCurrentThreadId();
 
-    if( pd->uniqueId != curr )
+    if( pd->uniqueId != (int)curr )
         return -1;
 
     pd->isRunning = false;
