@@ -2,7 +2,14 @@ TOPDIR = .
 include $(TOPDIR)/Make/makedirdefs
 include $(TOPDIR)/Make/makedefs
 
-DIRS = pthread_src \
+
+ifeq ($(OS),MINGW)
+	SRC_DIR = win32_src
+else
+	SRC_DIR = pthread_src
+endif
+
+DIRS = $(SRC_DIR) \
 	$(NULL)
 
 include $(TOPDIR)/Make/makedirrules

@@ -2,7 +2,7 @@ TOPDIR = ../.
 include $(TOPDIR)/Make/makedefs
 
 C++FILES =  \
-	    PThread.c++ \
+	PThread.c++ \
         PThreadMutex.c++ \
         PThreadCondition.c++ \
         PThreadBarrier.c++ \
@@ -27,6 +27,17 @@ ifeq ($(OS),Darwin)
 LIBS += -lpthread
 endif
 
+ifeq ($(OS),CYGWIN)
+LIBS += -lpthread
+DEF +=  -DOPENTHREADS_EXPORTS
+endif
+
+ifeq ($(OS),MINGW)
+LIBS += -lpthread -lwinmm
+DEF +=  -DOPENTHREADS_EXPORTS
+endif
+
+TARGET_BASENAME = OpenThreads
 LIB = libOpenThreads
 
 include $(TOPDIR)/Make/makerules

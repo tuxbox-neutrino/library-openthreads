@@ -10,6 +10,7 @@ endif
 ## Make CYGWIN_XXXX CYGWIN so it's "Windows cross platform" :)
 ifeq ($(findstring CYGWIN,$(OS)),CYGWIN)
 OS := CYGWIN
+#OS := MINGW
 endif
 
 ## Make MINGW_XXXX MINGW so it's "Windows cross platform" :)
@@ -54,8 +55,8 @@ VERSION       = $(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_RELEASE)
 
 
 DEF        = -DOPENTHREADS_VERSION=\"$(VERSION)\"\
-             -DOPENTHREADS_VERSION_REVISION="$(VERSION_REVISION)"\
-			 -DGLX_GLXEXT_PROTOTYPES
+             -DOPENTHREADS_VERSION_REVISION="$(VERSION_REVISION)"
+#			 -DGLX_GLXEXT_PROTOTYPES
 
 ALLOW_PRIORITY_SCHEDULING = 0;
 ifeq ($(ALLOW_PRIORITY_SCHEDULING),1)
@@ -284,22 +285,25 @@ ifeq ($(OS),CYGWIN)
   CXX               = c++
   DEPARG            = -M
   INC               += -DWIN32
-  DEF               += -DWIN32 -W -Wall
+  DEF               += -DWIN32 -Wall
   OPTF              = -O2 
   DBGF              = -g 
-  SHARED            = -shared\
-		      		  -Wl,--export-all-symbols  \
-		      		  -Wl,--output-def,lib$(TARGET_BASENAME).def \
-		      		  -Wl,--out-implib,$(TOPDIR)/lib/lib$(TARGET_BASENAME).dll.a \
+  SHARED            = -shared \
+		      -Wl,--export-all-symbols  \
+		      -Wl,--output-def,lib$(TARGET_BASENAME).def \
+		      -Wl,--out-implib,$(TOPDIR)/lib/lib$(TARGET_BASENAME).dll.a \
 
   ARCH              = 32
   ARCHARGS          = 
   LINKARGS          = -W -Wall
   DYNAMICLIBRARYLIB =
 
+  GL_LIBS           = -lglu32 -lopengl32
   X_LIBS            = -lgdi32 -luser32
   SOCKET_LIBS       = 
   OTHER_LIBS        = $(GL_LIBS)
+
+  PTHREAD_LIB       = -lpthread
 
   LIB_PREFIX        = cyg
   LIB_EXT           = dll
@@ -321,13 +325,14 @@ endif
 
 #### Cygwin/Mingw specific definitions
 ifeq ($(OS),MINGW)
-  CXX               = c++
+  CXX               = c++ -mthreads
+
   DEPARG            = -M
   INC               += 
   DEF               += -DWIN32 -Wall
   OPTF              = -O2 
   DBGF              = -g 
-  SHARED            = -shared\
+  SHARED            = -shared -mthreads \
 		      -Wl,--export-all-symbols  \
 		      -Wl,--output-def,lib$(TARGET_BASENAME).def \
 		      -Wl,--out-implib,$(TOPDIR)/lib/lib$(TARGET_BASENAME).dll.a \
@@ -340,8 +345,10 @@ ifeq ($(OS),MINGW)
   GL_LIBS           = -lglu32 -lopengl32
   X_LIBS            = -lgdi32 -luser32
   SOCKET_LIBS       = 
-  OTHER_LIBS        = $(GL_LIBS)
-
+  OTHER_LIBS        = $(GL_LIBS) -lwinmm
+  PTHREAD_LIB       =
+  OPEN_THREAD_LIB = -lOpenThreadsWin32
+	
 
 #  LIB_PREFIX        = cyg
   LIB_PREFIX        = lib
