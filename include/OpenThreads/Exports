@@ -8,10 +8,12 @@
 		#define OPENTHREAD_EXPORT_DIRECTIVE __declspec(dllexport)
 	#else
 		#define OPENTHREAD_EXPORT_DIRECTIVE __declspec(dllimport)
+		#ifdef _MSC_VER
 		#ifdef _DEBUG
-			#pragma comment(lib ,"OpenThreadWin32d")
+			#pragma comment(lib ,"OpenThreadsWin32d")
 		#else 
-			#pragma comment(lib, "OpenThreadWin32")
+			#pragma comment(lib, "OpenThreadsWin32")
+		#endif
 		#endif
 	#endif
 #endif
