@@ -63,22 +63,12 @@ $(STATICLIB): $(OBJS)
 
 else
 
-  ifeq ($(OS),HP-UX)
-    # we need to explicitly tell the linker the library name - else it will
-    # include paths like ../../../libosg.sl into executables
-    $(LIB) : $(OBJS)
-		$(CXX) $(LDFLAGS) $(SHARED) $(OBJS) $(LIBS) -Wl,+h -Wl,$@ -o $@
-	    touch $@
-
-  else
-
     $(LIB) : $(OBJS)
 		$(CXX) $(LDFLAGS) $(SHARED) $(OBJS) $(LIBS) -o $@.$(LIB_EXT)
 
     $(STATICLIB): $(OBJS)
 	    ar rv $@ $?
 
-  endif # not HP-UX
 endif # not Darwin
 
 $(EXEC:=.dbg) :

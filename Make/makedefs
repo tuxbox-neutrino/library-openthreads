@@ -379,37 +379,24 @@ ifeq ($(OS),MINGW)
 endif
 
 #### HP-UX Specific definitions
-# contributed by tino.schwarze@informatik.tu-chemnitz.de
 
 ifeq ($(OS),HP-UX)
-  ifeq (x$(CXX),x)
-    CXX               = g++
-  endif
-  DEPARG            = -M
-  INC               += -I/opt/glut/include
-  DEF               += -W -Wall -fPIC
-  OPTF              = -O2 
-  # gcc 3.1 uses DWARF as default, my GDB might not yet support this...
-  # at least I've got problems everywhere
-  DBGF              = -g -gstabs+ 
-  SHARED            = -shared -fPIC
+  CXX 		    = aCC -AA -mt
+  DEPARG            = -w +make -E
+  INC               += 
+  DEF               += +Z -z 
+  OPTF              = +O2 
+  DBGF              = -g 
+  SHARED            = +Z -b -z -Wl,+s
   ARCH              = 32
-ifeq ($(ARCH),64)
-    # not yet tested
-    ARCHARGS          = -march=2.0
-else
-   # at least my gcc 3.1 defaults to HP-PA RISC 1.1
-  ARCHARGS          = 
-endif
+  LDFLAGS	    = 
   LINKARGS          = -lpthread
   LIB_EXT           = sl
   PLUGIN_EXT        = sl
   DYNAMICLIBRARYLIB = -ldld
-  # glut delivered with HP-UX is outdated
-  # make sure that global constructors/destructors are called upon
-  # shl_load() / shl_unload() - this is a gcc specific workaround
-  OTHER_LIBS        = -lm -Wl,+init -Wl,_GLOBAL__DI -Wl,+fini -Wl,_GLOBAL__DD
+  OTHER_LIBS        = -lm 
 endif
+
 
 VPATH=..
 

@@ -1,7 +1,8 @@
 #!/bin/sh
 
 PRODUCT=$1
-INST_LOCATION=$2
+RPM_HEADER=$2
+RPM_FILES=$3
 
 SYS_SRC_DIR=/usr/src/packages/
 
@@ -13,7 +14,7 @@ TARBALL_DEST=$SYS_SRC_DIR/SOURCES/$TARBALL_NAME
 
 printRPMHeaderBeforeDescription()
 {
-    cat Make/rpm.header |  awk  \
+    cat $RPM_HEADER |  awk  \
         'BEGIN{flag=1}\
         { \
           if ($1 == "Description:" )\
@@ -25,7 +26,7 @@ printRPMHeaderBeforeDescription()
 
 printRPMHeaderAfterDescription()
 {
-    cat Make/rpm.header |  awk  \
+    cat $RPM_HEADER |  awk  \
         'BEGIN{flag=0}\
         { \
           if( flag == 1 ) \
@@ -69,7 +70,7 @@ tar cf - . | tar xvfC - /
 
 LEOF
 
-    cat Make/rpm.files | while read perm src dst
+    cat $RPM_FILES | while read perm src dst
     do
         echo "%attr($perm, root, root) $dst"
     done
@@ -86,7 +87,7 @@ makeTarball()
     IDIR=$PRODUCT-$rev
     [ -d $IDIR ] && rm -rf $IDIR
 
-    cat Make/rpm.files | while read perm src dst
+    cat $RPM_FILES | while read perm src dst
     do
         makedir $IDIR/`dirname $dst`
         install $src $IDIR/$dst
@@ -94,6 +95,27 @@ makeTarball()
 
     tar cf - $IDIR | gzip > $TARBALL_DEST
 }
+
+check_args()
+{
+    if [ ! -f $RPM_HEADER ] 
+    then
+        echo RPM Header file == $RPM_HEADER == missing
+        return 1
+    fi
+    if [ ! -f $RPM_FILES ] 
+    then
+        echo RPM Files file == $RPM_FILES == missing
+        return 1
+    fi
+
+    return 0
+}
+
+if ! check_args 
+then 
+    exit 1; 
+fi
 
 makeTarball 
 

@@ -22,7 +22,7 @@ __inst_lib:
 
 __inst_headers:
 	@[ -d $(INST_INCLUDE)/OpenThreads ] || mkdir -p $(INST_INCLUDE)/OpenThreads
-	@for f in `find include/OpenThreads -type f -print`; do\
+	for f in include/OpenThreads/* ; do\
 		[ "`head -1 $$f | cut -c 1-12`" = "/* -*-c++-*-"  ] && \
 			echo $(INSTRCMD) $$f $(INST_INCLUDE)/OpenThreads; \
 			     $(INSTRCMD) $$f $(INST_INCLUDE)/OpenThreads; done
