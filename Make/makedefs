@@ -285,7 +285,7 @@ ifeq ($(OS),CYGWIN)
   CXX               = c++
   DEPARG            = -M
   INC               += -DWIN32
-  DEF               += -DWIN32 -Wall
+  DEF               += -DWIN32 -Wall -DOPENTHREADS_EXPORTS
   OPTF              = -O2 
   DBGF              = -g 
   SHARED            = -shared \
@@ -329,7 +329,7 @@ ifeq ($(OS),MINGW)
 
   DEPARG            = -M
   INC               += 
-  DEF               += -DWIN32 -Wall
+  DEF               += -DWIN32 -Wall -DOPENTHREADS_EXPORTS
   OPTF              = -O2 
   DBGF              = -g 
   SHARED            = -shared -mthreads \
