@@ -752,6 +752,16 @@ int Thread::YieldCurrentThread() {
 
 }
 
+//-----------------------------------------------------------------------------
+// Description:  sleep 
+//
+// Use: public
+//
+int Thread::usleep(unsigned int microsec)
+{
+    return ::usleep(microsec);
+}
+
 static void sproc_dead_child_sig_handler(int sigid) {
 
 #ifdef DEBUG

@@ -601,7 +601,7 @@ void Thread::printSchedulingInfo() {
 #if _WIN32_WINNT < 0x0400 // simulate
 int SwitchToThread (void)
 {
-    Sleep(10);
+    ::Sleep(10);
     return 0;
 };
 #endif
@@ -611,3 +611,32 @@ int Thread::YieldCurrentThread()
     return SwitchToThread();
 }
 
+int Thread::usleep(unsigned int microsec)
+{
+#if _WIN32_WINNT < 0x0400 // simulate
+    ::Sleep(microsec/1000);
+    return 0;
+#else
+    HandleHolder sleepTimer(CreateWaitableTimer(NULL, TRUE, NULL));
+
+    if( !sleepTimer )
+      return -1;
+    
+    LARGE_INTEGER t;
+
+    t.QuadPart= -(LONGLONG)microsec*10; // in 100ns units
+                 // negative sign means relative,
+
+    if (!SetWaitableTimer(sleepTimer.get(), &t, 0, NULL, NULL, 0))
+    {
+        return -1;
+    }
+
+    // Wait for the timer.
+    if (WaitForSingleObject(sleepTimer.get(), INFINITE) != WAIT_OBJECT_0)
+    {
+        return -1;
+    } 
+    return 0;
+#endif
+}

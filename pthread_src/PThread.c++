@@ -832,3 +832,12 @@ int Thread::YieldCurrentThread() {
     return sched_yield();
 
 }
+
+// Description:  sleep 
+//
+// Use: public
+//
+int Thread::usleep(unsigned int microsec)
+{
+    return ::usleep(microsec);
+}
