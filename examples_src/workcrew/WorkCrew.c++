@@ -227,7 +227,7 @@ private:
 	// Just take the numbers and add them
 	// 
 	float result = 0;
-	register int i, j;
+	register unsigned int i, j;
 	float total;
 	for(i=0; i<_work->datapts.size();++i) {
 	    for(total=0, j=0; j<10000000; ++j) {
@@ -387,7 +387,7 @@ int main (int argc, char **argv) {
     crew->last  = 0;
     
     float result = 0;
-    int status = crew_create(crew, result, workers);
+    unsigned int status = crew_create(crew, result, workers);
     assert(status == 0);
 
     status = crew_start(crew);

@@ -94,7 +94,7 @@ public:
 	bar.block(GLOBAL_NUM_THREADS);  // Sync the threads.
 
 	char tmp[80];
-	sprintf(tmp, "StackSize: %d\n", getStackSize());
+	sprintf(tmp, "StackSize: %d\n", static_cast<int>(getStackSize()));
 
         notifyObserversStarted(getThreadId());
         notifyObserversMessage(getThreadId(), "This is a thread message.");
@@ -194,7 +194,7 @@ int main(int argc, char **argv) {
     std::cin >> val;
 
     // Notify the threads to quit, wait for this to happen.
-    for(i=0;i<threads.size();++i) {
+    for(i=0;i<static_cast<int>(threads.size());++i) {
         MyThread *thread = threads[i];
         thread->quit();
     }
@@ -214,7 +214,7 @@ int main(int argc, char **argv) {
     std::cout << std::endl;
 
     // Delete all the threads.
-    for(i=0;i<threads.size();++i) {
+    for(i=0;i<static_cast<int>(threads.size());++i) {
         MyThread *thread = threads[i];
         delete thread;
     }

@@ -24,7 +24,7 @@
 #ifndef _THREADREPORTER_H_
 #define _THREADREPORTER_H_
 
-#include <list.h>
+#include <list>
 #include "ThreadObserver.h"
 
 class ThreadReporter {
@@ -51,7 +51,7 @@ protected:
 
 private:
 
-    list<ThreadObserver *> _observers;
+    std::list<ThreadObserver *> _observers;
 
 };
 

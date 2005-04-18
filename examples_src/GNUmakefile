@@ -1,4 +1,4 @@
-TOPDIR = .
+TOPDIR = ..
 include $(TOPDIR)/Make/makedirdefs
 include $(TOPDIR)/Make/makedefs
 
