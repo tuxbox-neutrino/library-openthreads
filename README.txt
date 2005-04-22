@@ -29,5 +29,6 @@ Although the Open Thread Group does not have an email alias at this point in
 time,  one may contact the group via Don Burns (don@andesengineernig.com) or 
 Robert Osfield (robert@openscenegraph.com).
 
+
 - The Open Thread Group
 
