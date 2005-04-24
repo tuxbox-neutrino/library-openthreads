@@ -10,11 +10,11 @@
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 // Lesser General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU Lesser General Public
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-// 
+//
 
 //
 // Win32Thread.c++
@@ -40,7 +40,7 @@ using namespace OpenThreads;
 DWORD OpenThreads::cooperativeWait(HANDLE waitHandle, unsigned long timeout){
     Thread* current = Thread::CurrentThread();
     DWORD dwResult ;
-    if(current) 
+    if(current)
     {
         HANDLE cancelHandle = static_cast<Win32ThreadPrivateData*>(current->getImplementation())->cancelEvent.get();
         HANDLE handleSet[2] = {waitHandle, cancelHandle};
@@ -52,7 +52,7 @@ DWORD OpenThreads::cooperativeWait(HANDLE waitHandle, unsigned long timeout){
     {
         dwResult = WaitForSingleObject(waitHandle,timeout);
     }
-    
+
     return dwResult;
 }
 
@@ -68,7 +68,7 @@ const std::string OPENTHREAD_VERSION_STRING = "OpenThread v1.2preAlpha, WindowTh
 //-----------------------------------------------------------------------------
 // Initialize thread master priority level
 //
-Thread::ThreadPriority Thread::s_masterThreadPriority =  Thread::PRIORITY_DEFAULT;
+Thread::ThreadPriority Thread::s_masterThreadPriority =  Thread::THREAD_PRIORITY_DEFAULT;
 
 bool Thread::s_isInitialized = false;
 //-----------------------------------------------------------------------------
@@ -107,8 +107,8 @@ namespace OpenThreads {
             catch(Win32ThreadCanceled&)
             {
                 // thread is canceled do cleanup
-                try { 
-                    thread->cancelCleanup(); 
+                try {
+                    thread->cancelCleanup();
                 } catch(...) { }
             }
             catch(...)
@@ -131,63 +131,63 @@ namespace OpenThreads {
             std::cout<<"Thread "<< thread <<" priority : ";
 
             switch(thread->getSchedulePriority()) {
-            case Thread::PRIORITY_MAX:
+            case Thread::THREAD_PRIORITY_MAX:
                 std::cout<<"MAXIMAL"<<std::endl;
                 break;
-            case Thread::PRIORITY_HIGH:
+            case Thread::THREAD_PRIORITY_HIGH:
                 std::cout<<"HIGH"<<std::endl;
                 break;
-            case Thread::PRIORITY_DEFAULT:
-            case Thread::PRIORITY_NOMINAL:
+            case Thread::THREAD_PRIORITY_DEFAULT:
+            case Thread::THREAD_PRIORITY_NOMINAL:
                 std::cout<<"NORMAL"<<std::endl;
-                break;   
-            case Thread::PRIORITY_LOW:
+                break;
+            case Thread::THREAD_PRIORITY_LOW:
                 std::cout<<"LOW"<<std::endl;
-                break;       
-            case Thread::PRIORITY_MIN:
+                break;
+            case Thread::THREAD_PRIORITY_MIN:
                 std::cout<<"MINIMAL"<<std::endl;
-                break;   
+                break;
             }
         }
 
         //--------------------------------------------------------------------------
-        // Set thread scheduling parameters.  
+        // Set thread scheduling parameters.
         // Note that time-critical priority is ommited :
         // 1) It's not sensible thing to do
         // 2) there's no enum for that in Thread interface
         // Also, on Windows, effective thread priority is :
         // process priority (manipulated with Get/SetProrityClass) + thread priority (here).
-        // 
+        //
         //
         static int SetThreadSchedulingParams(Thread *thread) {
-            
+
             Win32ThreadPrivateData *pd =
                 static_cast<Win32ThreadPrivateData *>(thread->_prvData);
 
             int prio = THREAD_PRIORITY_NORMAL;
 
             switch(thread->getSchedulePriority()) {
-            case Thread::PRIORITY_MAX:
+            case Thread::THREAD_PRIORITY_MAX:
                 prio = THREAD_PRIORITY_HIGHEST;
                 break;
-            case Thread::PRIORITY_HIGH:
+            case Thread::THREAD_PRIORITY_HIGH:
                 prio = THREAD_PRIORITY_ABOVE_NORMAL;
                 break;
-            case Thread::PRIORITY_NOMINAL:
+            case Thread::THREAD_PRIORITY_NOMINAL:
                 prio = THREAD_PRIORITY_NORMAL;
-                break;   
-            case Thread::PRIORITY_LOW:
+                break;
+            case Thread::THREAD_PRIORITY_LOW:
                 prio = THREAD_PRIORITY_BELOW_NORMAL;
-                break;       
-            case Thread::PRIORITY_MIN:
+                break;
+            case Thread::THREAD_PRIORITY_MIN:
                 prio = THREAD_PRIORITY_IDLE;
-                break;   
+                break;
             }
 
             int status = SetThreadPriority( pd->tid.get(), prio);
 
             if(getenv("OUTPUT_THREADLIB_SCHEDULING_INFO") != 0)
-	        	PrintThreadSchedulingInfo(thread);   
+	        	PrintThreadSchedulingInfo(thread);
 
             return status!=0;
         };
@@ -244,11 +244,11 @@ Thread::Thread() {
 
     pd->uniqueId = 0;
 
-    pd->threadPriority = PRIORITY_DEFAULT;
+    pd->threadPriority = Thread::THREAD_PRIORITY_DEFAULT;
 
-    pd->threadPolicy = SCHEDULE_DEFAULT;
+    pd->threadPolicy = Thread::THREAD_SCHEDULE_DEFAULT;
 
-    pd->detached = false; 
+    pd->detached = false;
 
     pd->cancelEvent.set(CreateEvent(NULL,TRUE,FALSE,NULL));
 
@@ -273,14 +273,14 @@ Thread::~Thread() {
     delete pd;
 }
 //-----------------------------------------------------------------------------
-// 
+//
 // Description: Initialize Threading
 //
 // Use: public.
 //
 void Thread::Init() {
 //    if(s_isInitialized) return;
-//        s_masterThreadPriority = Thread::PRIORITY_DEFAULT;
+//        s_masterThreadPriority = Thread::THREAD_PRIORITY_DEFAULT;
     s_isInitialized = true;
 }
 
@@ -344,7 +344,7 @@ int Thread::start() {
 
 }
 
-int Thread::startThread() 
+int Thread::startThread()
 { return start(); }
 
 //-----------------------------------------------------------------------------
@@ -355,7 +355,7 @@ int Thread::startThread()
 //
 int Thread::join() {
     Win32ThreadPrivateData *pd = static_cast<Win32ThreadPrivateData *> (_prvData);
-    if( pd->detached ) 
+    if( pd->detached )
         return -1; // cannot wait for detached ;
 
     if( WaitForSingleObject(pd->tid.get(),INFINITE) != WAIT_OBJECT_0)
@@ -369,7 +369,7 @@ int Thread::join() {
 int Thread::detach()
 {
     Win32ThreadPrivateData *pd = static_cast<Win32ThreadPrivateData *> (_prvData);
-    pd->detached = true; 
+    pd->detached = true;
     return 0;
 }
 
@@ -397,13 +397,13 @@ int Thread::cancel()
 
     //    if( (pd->cancelMode == 1) || (WaitForSingleObject(pd->tid,INFINITE)!=WAIT_OBJECT_0) )
         if( pd->cancelMode == 1 )
-        {    
+        {
             // did not terminate cleanly force termination
             pd->isRunning = false;
             return TerminateThread(pd->tid.get(),(DWORD)-1);
         }
     }
-    
+
     return 0;
 }
 
@@ -412,7 +412,7 @@ int Thread::cancel()
 int Thread::testCancel()
 {
     Win32ThreadPrivateData *pd = static_cast<Win32ThreadPrivateData *> (_prvData);
-    
+
     if(WaitForSingleObject(pd->cancelEvent.get(),0) != WAIT_OBJECT_0) return 0;
 
     if(pd->cancelMode == 2)
@@ -480,9 +480,9 @@ int Thread::setSchedulePriority(ThreadPriority priority) {
 
     pd->threadPriority = priority;
 
-    if(pd->isRunning) 
+    if(pd->isRunning)
         return ThreadPrivateActions::SetThreadSchedulingParams(this);
-    else 
+    else
         return 0;
 }
 
@@ -509,9 +509,9 @@ int Thread::setSchedulePolicy(ThreadPolicy policy) {
 
     pd->threadPolicy = policy;
 
-    if(pd->isRunning) 
+    if(pd->isRunning)
         return ThreadPrivateActions::SetThreadSchedulingParams(this);
-    else 
+    else
         return 0;
 }
 
@@ -559,15 +559,15 @@ int Thread::setProcessorAffinity( unsigned int cpunum )
 {
     Win32ThreadPrivateData *pd = static_cast<Win32ThreadPrivateData *> (_prvData);
     DWORD affinityMask  = 0x1 << cpunum ; // thread affinity mask
-	DWORD res = 
-		SetThreadAffinityMask 
-		( 
+	DWORD res =
+		SetThreadAffinityMask
+		(
 			pd->tid.get(),                  // handle to thread
 			affinityMask					// thread affinity mask
 		);
-/*  
+/*
 	This one is funny.
-	This is "non-mandatory" affinity , winows will try to use dwIdealProcessor 
+	This is "non-mandatory" affinity , winows will try to use dwIdealProcessor
 	whenever possible ( when Bill's account is over 50B, maybe :-) ).
 
 	DWORD SetThreadIdealProcessor(
@@ -577,7 +577,7 @@ int Thread::setProcessorAffinity( unsigned int cpunum )
 */
 	// return value 1 means call is ignored ( 9x/ME/SE )
 	if( res == 1 ) return -1;
-	// return value 0 is failure 
+	// return value 0 is failure
 	return (res == 0) ? GetLastError() : 0 ;
 }
 
@@ -621,7 +621,7 @@ int Thread::usleep(unsigned int microsec)
 
     if( !sleepTimer )
       return -1;
-    
+
     LARGE_INTEGER t;
 
     t.QuadPart= -(LONGLONG)microsec*10; // in 100ns units
@@ -636,7 +636,7 @@ int Thread::usleep(unsigned int microsec)
     if (WaitForSingleObject(sleepTimer.get(), INFINITE) != WAIT_OBJECT_0)
     {
         return -1;
-    } 
+    }
     return 0;
 #endif
 }

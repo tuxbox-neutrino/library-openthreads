@@ -10,11 +10,11 @@
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 // Lesser General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU Lesser General Public
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-// 
+//
 
 //
 // PThread.c++ - C++ Thread class built on top of posix threads.
@@ -58,8 +58,8 @@ int PThreadPrivateData::nextId = 0;
 //-----------------------------------------------------------------------------
 // Initialize thread master priority level
 //
-Thread::ThreadPriority Thread::s_masterThreadPriority =  
-                                          Thread::PRIORITY_DEFAULT;
+Thread::ThreadPriority Thread::s_masterThreadPriority =
+                                          Thread::THREAD_PRIORITY_DEFAULT;
 
 bool Thread::s_isInitialized = false;
 pthread_key_t PThreadPrivateData::s_tls_key;
@@ -78,7 +78,7 @@ struct ThreadCleanupStruct {
 void thread_cleanup_handler(void *arg) {
 
     ThreadCleanupStruct *tcs = static_cast<ThreadCleanupStruct *>(arg);
-    
+
     tcs->thread->cancelCleanup();
     *(tcs->runflag) = false;
 
@@ -108,7 +108,7 @@ private:
 	Thread *thread = static_cast<Thread *>(data);
 	PThreadPrivateData *pd =
 	    static_cast<PThreadPrivateData *>(thread->_prvData);
-    
+
 #ifdef __sgi
     pthread_setrunon_np( pd->cpunum );
 #endif
@@ -138,7 +138,7 @@ private:
         pd->isRunning = false;
 
 	pthread_cleanup_pop(0);
-		
+
         return 0;
 
     };
@@ -154,11 +154,11 @@ private:
 
 	    int status, my_policy, min_priority, max_priority;
 	    struct sched_param my_param;
-	    
-	    status = pthread_getschedparam(thread->getProcessId(), 
-					   &my_policy, 
+
+	    status = pthread_getschedparam(thread->getProcessId(),
+					   &my_policy,
 					   &my_param);
-	    
+
 	    if(status != 0) {
 		printf("THREAD INFO (%d) : Get sched: %s\n",
 		       thread->getProcessId(),
@@ -167,22 +167,22 @@ private:
 		printf(
 		    "THREAD INFO (%d) : Thread running at %s / Priority: %d\n",
 		    thread->getProcessId(),
-		    (my_policy == SCHED_FIFO ? "SCHEDULE_FIFO" 
+		    (my_policy == SCHED_FIFO ? "SCHEDULE_FIFO"
 		     : (my_policy == SCHED_RR ? "SCHEDULE_ROUND_ROBIN"
 			: (my_policy == SCHED_OTHER ? "SCHEDULE_OTHER"
-			   : "UNKNOWN"))), 
+			   : "UNKNOWN"))),
 		    my_param.sched_priority);
-		
+
 		max_priority = sched_get_priority_max(my_policy);
 		min_priority = sched_get_priority_min(my_policy);
-		
+
 		printf(
 		    "THREAD INFO (%d) : Max priority: %d, Min priority: %d\n",
 		    thread->getProcessId(),
 		    max_priority, min_priority);
-		
+
 	    }
-	    
+
 	} else {
 	    printf(
 		"THREAD INFO (%d) POSIX Priority scheduling not available\n",
@@ -192,7 +192,7 @@ private:
 	fflush(stdout);
 
 #endif // ] ALLOW_PRIORITY_SCHEDULING
-    
+
     }
 
     //--------------------------------------------------------------------------
@@ -207,25 +207,25 @@ private:
 
 	if(sysconf(_POSIX_THREAD_PRIORITY_SCHEDULING)) {
 
-	    int th_policy; 
+	    int th_policy;
 	    int max_priority, nominal_priority, min_priority;
 	    sched_param th_param;
-	    pthread_getschedparam(thread->getProcessId(), 
+	    pthread_getschedparam(thread->getProcessId(),
 				  &th_policy, &th_param);
 
 #ifndef __linux__
 
 	    switch(thread->getSchedulePolicy()) {
 
-	    case Thread::SCHEDULE_FIFO:
+	    case Thread::THREAD_SCHEDULE_FIFO:
 		th_policy = SCHED_FIFO;
 		break;
 
-	    case Thread::SCHEDULE_ROUND_ROBIN:
+	    case Thread::THREAD_SCHEDULE_ROUND_ROBIN:
 		th_policy = SCHED_RR;
 		break;
 
-	    case Thread::SCHEDULE_TIME_SHARE:
+	    case Thread::THREAD_SCHEDULE_TIME_SHARE:
 		th_policy = SCHED_OTHER;
 		break;
 
@@ -237,7 +237,7 @@ private:
 #endif
 		break;
 	    };
-    
+
 #else
 	    th_policy = SCHED_OTHER;  // Must protect linux from realtime.
 #endif
@@ -257,44 +257,44 @@ private:
 #endif
 
 	    switch(thread->getSchedulePriority()) {
-	    
-	    case Thread::PRIORITY_MAX:
+
+	    case Thread::THREAD_PRIORITY_MAX:
 		th_param.sched_priority = max_priority;
 		break;
-	    
-	    case Thread::PRIORITY_HIGH:
+
+	    case Thread::THREAD_PRIORITY_HIGH:
 		th_param.sched_priority = (max_priority + nominal_priority)/2;
 		break;
-	    
-	    case Thread::PRIORITY_NOMINAL:
+
+	    case Thread::THREAD_PRIORITY_NOMINAL:
 		th_param.sched_priority = nominal_priority;
-		break;   
-	    
-	    case Thread::PRIORITY_LOW:
+		break;
+
+	    case Thread::THREAD_PRIORITY_LOW:
 		th_param.sched_priority = (min_priority + nominal_priority)/2;
-		break;       
-	    
-	    case Thread::PRIORITY_MIN:
+		break;
+
+	    case Thread::THREAD_PRIORITY_MIN:
 		th_param.sched_priority = min_priority;
-		break;   
-	    
+		break;
+
 	    default:
 		th_param.sched_priority = max_priority;
-		break;  
-	    
+		break;
+
 	    }
-	     
-	    status = pthread_setschedparam(thread->getProcessId(), 
+
+	    status = pthread_setschedparam(thread->getProcessId(),
 					   th_policy,
 					   &th_param);
 
 
 	    if(getenv("OUTPUT_THREADLIB_SCHEDULING_INFO") != 0)
-		PrintThreadSchedulingInfo(thread);   
-	    
-	} 
+		PrintThreadSchedulingInfo(thread);
 
-#endif // ] ALLOW_PRIORITY_SCHEDULING	
+	}
+
+#endif // ] ALLOW_PRIORITY_SCHEDULING
 
 	return status;
     };
@@ -309,13 +309,13 @@ private:
 // Use static public
 //
 int Thread::SetConcurrency(int concurrencyLevel) {
-    
+
 #if defined (__sgi) || defined (__sun)
     return pthread_setconcurrency(concurrencyLevel);
 #else
     return -1;
 #endif
-    
+
 };
 
 //----------------------------------------------------------------------------
@@ -352,8 +352,8 @@ Thread::Thread() {
     pd->isCanceled = false;
     pd->uniqueId = pd->nextId;
     pd->nextId++;
-    pd->threadPriority = PRIORITY_DEFAULT;
-    pd->threadPolicy = SCHEDULE_DEFAULT;
+    pd->threadPriority = Thread::THREAD_PRIORITY_DEFAULT;
+    pd->threadPolicy = Thread::THREAD_SCHEDULE_DEFAULT;
 
     _prvData = static_cast<void *>(pd);
 
@@ -384,16 +384,16 @@ Thread::~Thread() {
 }
 
 Thread *Thread::CurrentThread() {
-    
-    Thread *thread = 
+
+    Thread *thread =
 	static_cast<Thread *>(pthread_getspecific(PThreadPrivateData::s_tls_key));
 
     return thread;
-	
+
 }
 
 //-----------------------------------------------------------------------------
-// 
+//
 // Description: Initialize Threading
 //
 // Use: public.
@@ -410,31 +410,31 @@ void Thread::Init() {
 
     //--------------------------------------------------------------------------
     // If we've got priority scheduling, set things to nominal.
-    // 
+    //
     if(sysconf(_POSIX_THREAD_PRIORITY_SCHEDULING)) {
-       
+
 	int max_priority, nominal_priority, min_priority;
 
-	int th_policy; 
+	int th_policy;
 	sched_param th_param;
-	pthread_getschedparam(pthread_self(), 
+	pthread_getschedparam(pthread_self(),
 			      &th_policy, &th_param);
-	
+
 	max_priority = sched_get_priority_max(th_policy);
 	min_priority = sched_get_priority_min(th_policy);
 	nominal_priority = (max_priority + min_priority)/2;
-	
+
 	th_param.sched_priority = nominal_priority;
 
-	pthread_setschedparam(pthread_self(), 
+	pthread_setschedparam(pthread_self(),
 			      th_policy,
 			      &th_param);
 
-	s_masterThreadPriority = Thread::PRIORITY_NOMINAL;
+	s_masterThreadPriority = Thread::THREAD_PRIORITY_NOMINAL;
 
     } else {
 
-	s_masterThreadPriority = Thread::PRIORITY_DEFAULT;
+	s_masterThreadPriority = Thread::THREAD_PRIORITY_DEFAULT;
 
     }
 
@@ -463,11 +463,11 @@ int Thread::getThreadId() {
 // Use: public
 //
 int Thread::getProcessId() {
-    
+
     PThreadPrivateData *pd = static_cast<PThreadPrivateData *> (_prvData);
 
     if(pd->idSet == false) return (unsigned int) pthread_self();
-    
+
     return (int)(pd->tid);
 }
 
@@ -536,11 +536,11 @@ int Thread::start() {
     }
 
     if(defaultStackSize < pd->stackSize) {
-	
+
 	pthread_attr_setstacksize( &thread_attr, pd->stackSize);
 	if(status != 0) {
 	    return status;
-	}	
+	}
     }
 
     //-------------------------------------------------------------------------
@@ -627,12 +627,12 @@ int Thread::join() {
 // Use: public
 //
 int Thread::testCancel() {
-    
+
     PThreadPrivateData *pd = static_cast<PThreadPrivateData *> (_prvData);
 
     if(pthread_self() != pd->tid)
 	return -1;
-    
+
     pthread_testcancel();
 
     return 0;
@@ -710,12 +710,12 @@ int Thread::setSchedulePriority(ThreadPriority priority) {
 #ifdef ALLOW_PRIORITY_SCHEDULING
 
     PThreadPrivateData *pd = static_cast<PThreadPrivateData *> (_prvData);
-    
+
     pd->threadPriority = priority;
-    
-    if(pd->isRunning) 
+
+    if(pd->isRunning)
 	return ThreadPrivateActions::SetThreadSchedulingParams(this);
-    else 
+    else
 	return 0;
 
 #else
@@ -733,9 +733,9 @@ int Thread::setSchedulePriority(ThreadPriority priority) {
 int Thread::getSchedulePriority() {
 
     PThreadPrivateData *pd = static_cast<PThreadPrivateData *> (_prvData);
-    
+
     return pd->threadPriority;
-    
+
 }
 
 //-----------------------------------------------------------------------------
@@ -749,12 +749,12 @@ int Thread::setSchedulePolicy(ThreadPolicy policy) {
 #ifdef ALLOW_PRIORITY_SCHEDULING
 
     PThreadPrivateData *pd = static_cast<PThreadPrivateData *> (_prvData);
-    
+
     pd->threadPolicy = policy;
-    
-    if(pd->isRunning) 
+
+    if(pd->isRunning)
 	return ThreadPrivateActions::SetThreadSchedulingParams(this);
-    else 
+    else
 	return 0;
 #else
     return -1;
@@ -771,9 +771,9 @@ int Thread::setSchedulePolicy(ThreadPolicy policy) {
 int Thread::getSchedulePolicy() {
 
     PThreadPrivateData *pd = static_cast<PThreadPrivateData *> (_prvData);
-    
+
     return pd->threadPolicy;
-    
+
 }
 
 
@@ -784,13 +784,13 @@ int Thread::getSchedulePolicy() {
 // Use: public
 //
 int Thread::setStackSize(size_t stackSize) {
-    
+
     PThreadPrivateData *pd = static_cast<PThreadPrivateData *> (_prvData);
-    
+
     if(pd->stackSizeLocked == true) return 13;  // EACESS
 
     pd->stackSize = stackSize;
-    
+
     return 0;
 
 }
@@ -804,7 +804,7 @@ int Thread::setStackSize(size_t stackSize) {
 size_t Thread::getStackSize() {
 
    PThreadPrivateData *pd = static_cast<PThreadPrivateData *> (_prvData);
-    
+
    return pd->stackSize;
 
 }
@@ -816,9 +816,9 @@ size_t Thread::getStackSize() {
 // Use: public
 //
 void Thread::printSchedulingInfo() {
-    
+
     ThreadPrivateActions::PrintThreadSchedulingInfo(this);
-    
+
 }
 
 //-----------------------------------------------------------------------------
@@ -833,7 +833,7 @@ int Thread::YieldCurrentThread() {
 
 }
 
-// Description:  sleep 
+// Description:  sleep
 //
 // Use: public
 //

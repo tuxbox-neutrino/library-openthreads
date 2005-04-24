@@ -10,11 +10,11 @@
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 // Lesser General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU Lesser General Public
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-// 
+//
 
 //
 // SprocThread.c++ - C++ Thread class built on top of IRIX sproc.
@@ -42,7 +42,7 @@ const char *OPENTHREAD_VERSION_STRING = "Sproc Thread Model, v1.1 ("__DATE__" "_
 
 #ifdef DEBUG
 #define DPRINTF(arg) printf arg; fflush(stdout);
-#else 
+#else
 #define DPRINTF(ARG)
 #endif
 
@@ -56,73 +56,73 @@ int SprocThreadPrivateData::nextId = 0;
 //-----------------------------------------------------------------------------
 // Initialize thread master priority level
 //
-Thread::ThreadPriority Thread::s_masterThreadPriority =  
-                                          Thread::PRIORITY_MAX;
+Thread::ThreadPriority Thread::s_masterThreadPriority =
+                                          Thread::THREAD_PRIORITY_MAX;
 
 bool Thread::s_isInitialized = false;
 
 std::list<Thread *> ThreadPrivateActions::s_threadList;
 
 void ThreadPrivateActions::ThreadCancelTest() {
-	
+
     OpenThreads::Thread *t = GetThread(getpid());
 
     if(t != 0L) {
-	
+
 	SprocThreadPrivateData *pd =
 	    static_cast<SprocThreadPrivateData *>(t->_prvData);
-	
+
 	bool *dieflag = GetDeathFlag(t);
-	
+
 	if(*dieflag==false) return;
-	
+
 	DPRINTF(("(SPROC THREAD) Thread Cancel Test Passed for %d\n",
 		 getpid()));
-	
-	if(!pd->cancelFuncStack.empty()) 
+
+	if(!pd->cancelFuncStack.empty())
 	    pd->cancelFuncStack.top().routine(pd->cancelFuncStack.top().arg);
-	
+
 	t->cancelCleanup();
 	pd->isRunning = false;
-	
+
 	exit(1);
     }
 }
-   
+
 bool *ThreadPrivateActions::GetDeathFlag(Thread *thread) {
-    
+
     SprocThreadPrivateData *pd =
 	static_cast<SprocThreadPrivateData *>(thread->_prvData);
-    
+
     return (bool *)(&(pd->dieFlag));
 }
 
 Thread *ThreadPrivateActions::GetThread(pid_t thread_id) {
-    
+
     std::list<Thread *>::iterator iter;
     for(iter = s_threadList.begin();
 	iter != s_threadList.end();
 	++iter) {
-	
+
 	Thread *t = *iter;
 	if(t->getProcessId() == thread_id) return t;
-	
+
     }
-    
+
     return 0L; // no thread found;
-    
+
 };
 
 void ThreadPrivateActions::ThreadCancelHandler(int sigid) {
-    
+
     Thread *t = GetThread(getpid());
-    
+
     if(t != 0L) {
-	
+
 	bool * dieflag = GetDeathFlag(t);
-	
+
 	*dieflag = true;
-	
+
 	sigset(SIGINT, SIG_DFL);
 	unblockproc(getpid());
     }
@@ -132,7 +132,7 @@ void ThreadPrivateActions::ThreadCancelHandler(int sigid) {
 // standard start routine.
 //
 void ThreadPrivateActions::StartThread(void *data) {
-    
+
     Thread *thread = static_cast<Thread *>(data);
 
     AddThread(thread);
@@ -140,41 +140,41 @@ void ThreadPrivateActions::StartThread(void *data) {
     *((Thread **)&PRDA->usr_prda) = (Thread *)thread;
 
     SetThreadSchedulingParams(thread);
-    
+
     SprocThreadPrivateData *pd =
 	static_cast<SprocThreadPrivateData *>(thread->_prvData);
-    
+
     sigset(SIGINT, ThreadCancelHandler);
-    
+
     size_t defaultStackSize;
     prctl(PR_GETSTACKSIZE, &defaultStackSize);
-    
+
     if(defaultStackSize < pd->stackSize) {
 	prctl(PR_SETSTACKSIZE, pd->stackSize);
     }
-    
+
     prctl(PR_GETSTACKSIZE, &pd->stackSize);
-    
+
     pd->stackSizeLocked = true;
-    
+
     pd->isRunning = true;
     thread->run();
     pd->isRunning = false;
-    
+
     RemoveThread(thread);
-    
+
     if(pd->detached == true ) {
 	exit(0);
     }
-    
+
     return;
-    
+
 };
 
 void ThreadPrivateActions::AddThread(Thread *thread) {
-    
+
     s_threadList.push_front(thread);
-    
+
     };
 
 void ThreadPrivateActions::RemoveThread(Thread *thread) {
@@ -182,17 +182,17 @@ void ThreadPrivateActions::RemoveThread(Thread *thread) {
 };
 
 void ThreadPrivateActions::PrintThreadSchedulingInfo(Thread *thread) {
-    
+
     int status, my_policy, min_priority, max_priority;
     struct sched_param my_param;
-    
-    status = sched_getparam(thread->getProcessId(), 
+
+    status = sched_getparam(thread->getProcessId(),
 			    &my_param);
-    
+
     my_policy = sched_getscheduler(thread->getProcessId());
-    
+
     if(status != 0 || my_policy == -1) {
-	
+
 	printf("THREAD INFO (%d) : Get sched param: %s/%s\n",
 	       thread->getProcessId(),
 	       strerror(status),
@@ -201,87 +201,87 @@ void ThreadPrivateActions::PrintThreadSchedulingInfo(Thread *thread) {
 	printf(
 	    "THREAD INFO (%d) : Thread running at %s / Priority: %d\n",
 	    thread->getProcessId(),
-	    (my_policy == SCHED_FIFO ? "SCHEDULE_FIFO" 
+	    (my_policy == SCHED_FIFO ? "SCHEDULE_FIFO"
 	     : (my_policy == SCHED_RR ? "SCHEDULE_ROUND_ROBIN"
 		: (my_policy == SCHED_TS ? "SCHEDULE_TIME_SHARE"
 		   : (my_policy == SCHED_OTHER ? "SCHEDULE_OTHER"
-		      : "UNKNOWN")))), 
+		      : "UNKNOWN")))),
 	    my_param.sched_priority);
-	
+
 	max_priority = sched_get_priority_max(my_policy);
 	min_priority = sched_get_priority_min(my_policy);
-	
+
 	printf(
 	    "THREAD INFO (%d) : Max priority: %d, Min priority: %d\n",
 	    thread->getProcessId(),
 	    max_priority, min_priority);
-	
+
     }
-    
+
 }
 
 int ThreadPrivateActions::SetThreadSchedulingParams(Thread *thread) {
-    
+
     int status;
-    
-    int th_priority; 
+
+    int th_priority;
     int max_priority, nominal_priority, min_priority;
-    
+
     max_priority = 0;  // This is as high as we can regularly go.
     min_priority = 20;
     nominal_priority = (max_priority + min_priority)/2;
-    
+
     switch(thread->getSchedulePriority()) {
-	
-    case Thread::PRIORITY_MAX:
+
+    case Thread::THREAD_PRIORITY_MAX:
 	th_priority = max_priority;
 	break;
-	
-    case Thread::PRIORITY_HIGH:
+
+    case Thread::THREAD_PRIORITY_HIGH:
 	th_priority = (max_priority + nominal_priority)/2;
 	break;
-	
-    case Thread::PRIORITY_NOMINAL:
+
+    case Thread::THREAD_PRIORITY_NOMINAL:
 	th_priority = nominal_priority;
-	break;   
-	
-    case Thread::PRIORITY_LOW:
+	break;
+
+    case Thread::THREAD_PRIORITY_LOW:
 	th_priority = (min_priority + nominal_priority)/2;
-	break;       
-	
-    case Thread::PRIORITY_MIN:
+	break;
+
+    case Thread::THREAD_PRIORITY_MIN:
 	th_priority =  min_priority;
-	break;   
-	
+	break;
+
     default:
 	th_priority = max_priority;
-	break;  
-	
+	break;
+
     }
-    
-    status = setpriority(PRIO_PROCESS, thread->getProcessId(), 
+
+    status = setpriority(PRIO_PROCESS, thread->getProcessId(),
 			 th_priority);
-    
+
     if(getenv("OUTPUT_THREADLIB_SCHEDULING_INFO") != 0)
-	PrintThreadSchedulingInfo(thread);   
-    
+	PrintThreadSchedulingInfo(thread);
+
     return status;
 };
 
 void ThreadPrivateActions::PushCancelFunction(void (*routine)(void *), void *arg) {
 
     Thread *thread = GetThread(getpid());
-    
+
     if(thread != 0L) {
 	SprocThreadPrivateData *pd =
 	    static_cast<SprocThreadPrivateData *>(thread->_prvData);
-	
+
 	SprocThreadPrivateData::CancelFuncStruct c;
-	
+
 	pd->cancelFuncStack.push(c);
-	
+
 	SprocThreadPrivateData::CancelFuncStruct *cft = &(pd->cancelFuncStack.top());
-	
+
 	cft->routine = routine;
 	cft->arg = arg;
     }
@@ -290,12 +290,12 @@ void ThreadPrivateActions::PushCancelFunction(void (*routine)(void *), void *arg
 void ThreadPrivateActions::PopCancelFunction() {
 
     Thread *thread = GetThread(getpid());
-    
+
     if(thread != 0L) {
-	
+
 	SprocThreadPrivateData *pd =
 	    static_cast<SprocThreadPrivateData *>(thread->_prvData);
-	
+
 	if(!pd->cancelFuncStack.empty())
 	    pd->cancelFuncStack.pop();
     }
@@ -308,9 +308,9 @@ void ThreadPrivateActions::PopCancelFunction() {
 // Use static public
 //
 int Thread::SetConcurrency(int concurrencyLevel) {
-    
+
     return -1;
-    
+
 };
 
 //----------------------------------------------------------------------------
@@ -345,8 +345,8 @@ Thread::Thread() {
     pd->detached = false;
     pd->uniqueId = pd->nextId;
     pd->nextId++;
-    pd->threadPriority = Thread::PRIORITY_DEFAULT;
-    pd->threadPolicy = SCHEDULE_DEFAULT;
+    pd->threadPriority = Thread::THREAD_PRIORITY_DEFAULT;
+    pd->threadPolicy = Thread::THREAD_SCHEDULE_DEFAULT;
 
     _prvData = static_cast<void *>(pd);
 
@@ -361,31 +361,31 @@ Thread::Thread() {
 Thread::~Thread() {
 
     DPRINTF(("(SPROC THREAD) %s:%d, In OpenThreads::Thread destructor\n",
-	__FILE__, __LINE__));  
-    
-    SprocThreadPrivateData *pd = 
+	__FILE__, __LINE__));
+
+    SprocThreadPrivateData *pd =
 	static_cast<SprocThreadPrivateData *>(_prvData);
-    
+
     if(pd->isRunning) {
-	
+
 	DPRINTF(("(SPROC THREAD) %s:%d, about to kill OpenThreads::Thread\n",
-		 __FILE__, __LINE__));  
-	
-	
+		 __FILE__, __LINE__));
+
+
 	//-------------------------------------------------------------------
 	//  Kill the process when the thread is destroyed.
 	//
 	cancel();
-	
+
 	while (pd->isRunning == true) {
 	    usleep(1);
 	}
 
     }
-    
+
 
     DPRINTF(("(SPROC THREAD) %s:%d, Thread destroying private data.\n",
-	     __FILE__, __LINE__));  
+	     __FILE__, __LINE__));
 
 
     delete pd;
@@ -393,7 +393,7 @@ Thread::~Thread() {
 }
 
 //-----------------------------------------------------------------------------
-// 
+//
 // Description: Initialize Threading
 //
 // Use: public.
@@ -406,7 +406,7 @@ void Thread::Init() {
     fprintf(stderr, "%s\n", OPENTHREAD_VERSION_STRING);
 #endif
 
-    s_masterThreadPriority = Thread::PRIORITY_MAX;
+    s_masterThreadPriority = Thread::THREAD_PRIORITY_MAX;
 
     s_isInitialized = true;
 
@@ -432,7 +432,7 @@ Thread *Thread::CurrentThread() {
 //
 int Thread::getThreadId() {
 
-    SprocThreadPrivateData *pd = 
+    SprocThreadPrivateData *pd =
 	static_cast<SprocThreadPrivateData *> (_prvData);
     return pd->uniqueId;
 }
@@ -445,11 +445,11 @@ int Thread::getThreadId() {
 //
 int Thread::getProcessId() {
 
-    SprocThreadPrivateData *pd = 
+    SprocThreadPrivateData *pd =
 	static_cast<SprocThreadPrivateData *> (_prvData);
 
     if(pd->idSet == false) return getpid();
-    
+
     return pd->pid;
 
 }
@@ -462,7 +462,7 @@ int Thread::getProcessId() {
 //
 bool Thread::isRunning() {
 
-    SprocThreadPrivateData *pd = 
+    SprocThreadPrivateData *pd =
 	static_cast<SprocThreadPrivateData *> (_prvData);
 
     return pd->isRunning;
@@ -477,29 +477,29 @@ bool Thread::isRunning() {
 //
 int Thread::start() {
 
-    SprocThreadPrivateData *pd = 
+    SprocThreadPrivateData *pd =
 	static_cast<SprocThreadPrivateData *> (_prvData);
-    
-    int pid = sproc(ThreadPrivateActions::StartThread, 
+
+    int pid = sproc(ThreadPrivateActions::StartThread,
 		    PR_SALL,
 		    static_cast<void *>(this));
 
     // PR_SADDR | PR_SDIR | PR_SUMASK | PR_SULIMIT | PR_SID,
 
-    if(pid < 0) { 
+    if(pid < 0) {
 	perror("sproc encountered an error");
 	return -1;
-    } 
-    
+    }
+
     //-----------------------------------------------------------------
-    // Make the thread runnable anywhere. 
+    // Make the thread runnable anywhere.
     //
     sysmp(MP_RUNANYWHERE_PID, pid);
 
     pd->pid = pid;
     pd->idSet = true;
     return 0;
-    
+
 }
 
 //-----------------------------------------------------------------------------
@@ -517,17 +517,17 @@ int Thread::startThread() { return start(); }
 // Use: public
 //
 int Thread::detach() {
-    
+
     int status = 0;
-    
-    SprocThreadPrivateData *pd = 
+
+    SprocThreadPrivateData *pd =
 	static_cast<SprocThreadPrivateData *> (_prvData);
 
     pd->detached=true;
     sigset(SIGCLD, sproc_dead_child_sig_handler);
 
     return status;
-    
+
 }
 
 //-----------------------------------------------------------------------------
@@ -537,12 +537,12 @@ int Thread::detach() {
 // Use: public
 //
 int Thread::join() {
-    
+
     int status;
-    
-    return waitpid((pid_t)getProcessId(), &status, NULL); 
+
+    return waitpid((pid_t)getProcessId(), &status, NULL);
     //return status;
-    
+
 }
 
 //-----------------------------------------------------------------------------
@@ -554,9 +554,9 @@ int Thread::join() {
 int Thread::testCancel() {
 
     if(getpid() != getProcessId()) return -1;
-    
+
     ThreadPrivateActions::ThreadCancelTest();
-    
+
     return 0;
 }
 
@@ -570,11 +570,11 @@ int Thread::cancel() {
 
     int status = 0;
 
-    SprocThreadPrivateData *pd = 
+    SprocThreadPrivateData *pd =
 	static_cast<SprocThreadPrivateData *> (_prvData);
 
     if(pd->cancelActive) {
-	
+
 	status = kill((pid_t)getProcessId(), SIGINT);
     };
 
@@ -590,7 +590,7 @@ int Thread::cancel() {
 //
 int Thread::setCancelModeDisable() {
 
-    SprocThreadPrivateData *pd = 
+    SprocThreadPrivateData *pd =
 	static_cast<SprocThreadPrivateData *> (_prvData);
 
     pd->cancelActive = false;
@@ -607,12 +607,12 @@ int Thread::setCancelModeDisable() {
 //
 int Thread::setCancelModeAsynchronous() {
 
-    SprocThreadPrivateData *pd = 
+    SprocThreadPrivateData *pd =
 	static_cast<SprocThreadPrivateData *> (_prvData);
 
     pd->cancelActive = true;
 
-    return 0; 
+    return 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -623,7 +623,7 @@ int Thread::setCancelModeAsynchronous() {
 //
 int Thread::setCancelModeDeferred() {
 
-    SprocThreadPrivateData *pd = 
+    SprocThreadPrivateData *pd =
 	static_cast<SprocThreadPrivateData *> (_prvData);
 
     pd->cancelActive = true;
@@ -640,14 +640,14 @@ int Thread::setCancelModeDeferred() {
 //
 int Thread::setSchedulePriority(ThreadPriority priority) {
 
-    SprocThreadPrivateData *pd = 
+    SprocThreadPrivateData *pd =
 	static_cast<SprocThreadPrivateData *> (_prvData);
-    
+
     pd->threadPriority = priority;
-    
-    if(pd->isRunning) 
+
+    if(pd->isRunning)
         return ThreadPrivateActions::SetThreadSchedulingParams(this);
-    else 
+    else
         return 0;
 
 }
@@ -660,11 +660,11 @@ int Thread::setSchedulePriority(ThreadPriority priority) {
 //
 int Thread::getSchedulePriority() {
 
-    SprocThreadPrivateData *pd = 
+    SprocThreadPrivateData *pd =
 	static_cast<SprocThreadPrivateData *> (_prvData);
-    
+
     return pd->threadPriority;
-    
+
 }
 
 //-----------------------------------------------------------------------------
@@ -687,11 +687,11 @@ int Thread::setSchedulePolicy(ThreadPolicy policy) {
 //
 int Thread::getSchedulePolicy() {
 
-    SprocThreadPrivateData *pd = 
+    SprocThreadPrivateData *pd =
 	static_cast<SprocThreadPrivateData *> (_prvData);
-    
+
     return pd->threadPolicy;
-    
+
 }
 
 //-----------------------------------------------------------------------------
@@ -701,14 +701,14 @@ int Thread::getSchedulePolicy() {
 // Use: public
 //
 int Thread::setStackSize(size_t stackSize) {
-    
-    SprocThreadPrivateData *pd = 
+
+    SprocThreadPrivateData *pd =
 	static_cast<SprocThreadPrivateData *> (_prvData);
-    
+
     if(pd->stackSizeLocked == true) return 13;  // EACESS
 
     pd->stackSize = stackSize;
-    
+
     return 0;
 
 }
@@ -721,9 +721,9 @@ int Thread::setStackSize(size_t stackSize) {
 //
 size_t Thread::getStackSize() {
 
-   SprocThreadPrivateData *pd = 
+   SprocThreadPrivateData *pd =
        static_cast<SprocThreadPrivateData *> (_prvData);
-    
+
    return pd->stackSize;
 
 }
@@ -735,9 +735,9 @@ size_t Thread::getStackSize() {
 // Use: public
 //
 void Thread::printSchedulingInfo() {
-    
+
     ThreadPrivateActions::PrintThreadSchedulingInfo(this);
-    
+
 }
 
 //-----------------------------------------------------------------------------
@@ -753,7 +753,7 @@ int Thread::YieldCurrentThread() {
 }
 
 //-----------------------------------------------------------------------------
-// Description:  sleep 
+// Description:  sleep
 //
 // Use: public
 //
@@ -767,7 +767,7 @@ static void sproc_dead_child_sig_handler(int sigid) {
 #ifdef DEBUG
     int pid, status;
     pid = wait(&status);
-    DPRINTF(("(SPROC THREAD) Dead Child Handler Caught Signal, Reaped %d\n", 
+    DPRINTF(("(SPROC THREAD) Dead Child Handler Caught Signal, Reaped %d\n",
 	     pid));
 #endif
 
