@@ -23,9 +23,13 @@ __inst_lib:
 __inst_headers:
 	@[ -d $(INST_INCLUDE)/OpenThreads ] || mkdir -p $(INST_INCLUDE)/OpenThreads
 	for f in include/OpenThreads/* ; do\
+	if [ -f $$f ];\
+	then\
 		[ "`head -1 $$f | cut -c 1-12`" = "/* -*-c++-*-"  ] && \
 			echo $(INSTRCMD) $$f $(INST_INCLUDE)/OpenThreads; \
-			     $(INSTRCMD) $$f $(INST_INCLUDE)/OpenThreads; done
+			     $(INSTRCMD) $$f $(INST_INCLUDE)/OpenThreads; \
+	fi;\
+	done
 
 
 __inst_share:
@@ -35,5 +39,6 @@ __inst_share:
 	@for f in `find share/ -type f -print | grep -v CVS`; do\
         $(INSTRCMD) $$f $(INST_LOCATION)/$$f;\
         done
+
 
 
