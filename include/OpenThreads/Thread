@@ -347,12 +347,12 @@ private:
      /**
       *  Private copy constructor, to prevent tampering.
       */
-    Thread(const Thread &t) {};
+    Thread(const Thread &/*t*/) {};
 
     /**
       *  Private copy assignment, to prevent tampering.
       */
-    Thread &operator=(const Thread &t) {return *(this);};
+    Thread &operator=(const Thread &/*t*/) {return *(this);};
 
     /**
      *  Implementation-specific data
