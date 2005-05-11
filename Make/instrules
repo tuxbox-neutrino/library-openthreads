@@ -22,8 +22,8 @@ __inst_lib:
 
 __inst_headers:
 	@[ -d $(INST_INCLUDE)/OpenThreads ] || mkdir -p $(INST_INCLUDE)/OpenThreads
-	@for f in include/OpenThreads/* ; do\
-	if [ -f $$f ];\
+	for f in include/OpenThreads/* ; do\
+	if ! [ -d $$f ];\
 	then\
 		[ "`head -1 $$f | cut -c 1-12`" = "/* -*-c++-*-"  ] && \
 			echo $(INSTRCMD) $$f $(INST_INCLUDE)/OpenThreads; \
