@@ -105,10 +105,10 @@ void Barrier::invalidate()
     Win32BarrierPrivateData *pd =
             static_cast<Win32BarrierPrivateData*>(_prvData);
 
-	ScopedLock<Mutex> lock(pd->lock);
-   _valid = false;
-   ScopedLock<Mutex> unlock(pd->lock);
-    release();
+	pd->lock.lock();
+	_valid = false;
+	pd->lock.unlock();
+	release();
 }
 
 
