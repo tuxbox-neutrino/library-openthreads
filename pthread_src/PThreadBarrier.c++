@@ -55,6 +55,8 @@ Barrier::Barrier(int numThreads) {
     pd->phase = 0;
     pd->maxcnt = numThreads;
 
+    _valid = true;
+
     pthread_mutexattr_t mutex_attr;
     pthread_mutexattr_init( &mutex_attr );
 
@@ -166,27 +168,39 @@ void Barrier::block(unsigned int numThreads) {
     int my_phase;
 
     pthread_mutex_lock(&(pd->lock));
-    my_phase = pd->phase;
-    ++pd->cnt;
+    if( _valid )
+    {
+        my_phase = pd->phase;
+        ++pd->cnt;
     
-    if (pd->cnt == pd->maxcnt) {             // I am the last one
-	pd->cnt = 0;                         // reset for next use
-	pd->phase = 1 - my_phase;            // toggle phase
-	pthread_cond_broadcast(&(pd->cond));
-    } 
+        if (pd->cnt == pd->maxcnt) {             // I am the last one
+	        pd->cnt = 0;                         // reset for next use
+	        pd->phase = 1 - my_phase;            // toggle phase
+	        pthread_cond_broadcast(&(pd->cond));
+        } 
 
-    while (pd->phase == my_phase) {
+        while (pd->phase == my_phase) {
 
-	pthread_cleanup_push(barrier_cleanup_handler, &(pd->lock));
+	        pthread_cleanup_push(barrier_cleanup_handler, &(pd->lock));
 		
-	pthread_cond_wait(&(pd->cond), &(pd->lock));
+	        pthread_cond_wait(&(pd->cond), &(pd->lock));
 
-	pthread_cleanup_pop(0);
-
+	        pthread_cleanup_pop(0);
+        }
     }
 
     pthread_mutex_unlock(&(pd->lock));
 
+}
+
+void Barrier::invalidate()
+{
+    PThreadBarrierPrivateData *pd =
+        static_cast<PThreadBarrierPrivateData*>(_prvData);
+    pthread_mutex_lock(&(pd->lock));
+    _valid = false;
+    pthread_mutex_unlock(&(pd->lock));
+    release();
 }
 
 //----------------------------------------------------------------------------
@@ -220,8 +234,7 @@ void Barrier::release() {
 //
 int Barrier::numThreadsCurrentlyBlocked() {
     
-    PThreadBarrierPrivateData *pd =
-        static_cast<PThreadBarrierPrivateData*>(_prvData);
+    PThreadBarrierPrivateData *pd = static_cast<PThreadBarrierPrivateData*>(_prvData);
     
     
     int numBlocked = -1;

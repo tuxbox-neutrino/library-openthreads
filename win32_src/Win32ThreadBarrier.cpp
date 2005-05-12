@@ -42,6 +42,7 @@ Barrier::Barrier(int numThreads) {
     pd->cnt = 0;
     pd->phase = 0;
     pd->maxcnt = numThreads;
+    _valid = true;
     _prvData = static_cast<void *>(pd);
 }
 //----------------------------------------------------------------------------
@@ -82,19 +83,33 @@ void Barrier::block(unsigned int numThreads) {
     int my_phase;
 
     ScopedLock<Mutex> lock(pd->lock);
-    my_phase = pd->phase;
-    ++pd->cnt;
+    if( _valid )
+    {
+        my_phase = pd->phase;
+        ++pd->cnt;
 
-    if (pd->cnt == pd->maxcnt) {             // I am the last one
-		pd->cnt = 0;                         // reset for next use
-		pd->phase = 1 - my_phase;            // toggle phase
-		pd->cond.broadcast();
-    }else{ 
-		while (pd->phase == my_phase ) {
-			pd->cond.wait(&pd->lock);
-		}
-	}
+        if (pd->cnt == pd->maxcnt) {             // I am the last one
+		    pd->cnt = 0;                         // reset for next use
+		    pd->phase = 1 - my_phase;            // toggle phase
+		    pd->cond.broadcast();
+        }else{ 
+		    while (pd->phase == my_phase ) {
+			    pd->cond.wait(&pd->lock);
+		    }
+	    }
+    }
 }
+
+void Barrier::invalidate()
+{
+    PThreadBarrierPrivateData *pd =
+            static_cast<PThreadBarrierPrivateData*>(_prvData);
+    pthread_mutex_lock(&(pd->lock));
+    _valid = false;
+    pthread_mutex_unlock(&(pd->lock));
+    release();
+}
+
 
 //----------------------------------------------------------------------------
 //

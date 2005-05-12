@@ -72,6 +72,9 @@ public:
      *  Return -1 if error.
      */ 
     virtual int numThreadsCurrentlyBlocked();
+
+
+    void invalidate();
     
 private:
 
@@ -89,6 +92,9 @@ private:
      *  Implementation-specific private data.
      */
     void *_prvData;
+
+
+    bool _valid;
 
 };
 
