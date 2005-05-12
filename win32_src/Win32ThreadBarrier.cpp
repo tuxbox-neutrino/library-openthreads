@@ -102,11 +102,12 @@ void Barrier::block(unsigned int numThreads) {
 
 void Barrier::invalidate()
 {
-    Win32PThreadBarrierPrivateData *pd =
-            static_cast<PThreadBarrierPrivateData*>(_prvData);
-    pthread_mutex_lock(&(pd->lock));
-    _valid = false;
-    pthread_mutex_unlock(&(pd->lock));
+    Win32BarrierPrivateData *pd =
+            static_cast<Win32BarrierPrivateData*>(_prvData);
+
+	ScopedLock<Mutex> lock(pd->lock);
+   _valid = false;
+   ScopedLock<Mutex> unlock(pd->lock);
     release();
 }
 
