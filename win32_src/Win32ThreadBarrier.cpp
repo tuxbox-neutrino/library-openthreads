@@ -132,7 +132,6 @@ void Barrier::release() {
     pd->phase = 1 - my_phase;            // toggle phase
     pd->cond.broadcast();
     
-
 }
 
 //----------------------------------------------------------------------------
@@ -149,7 +148,6 @@ int Barrier::numThreadsCurrentlyBlocked() {
     int numBlocked = -1;
     ScopedLock<Mutex> lock(pd->lock);
     numBlocked = pd->cnt;
-    ScopedLock<Mutex> unlock(pd->lock);
     return numBlocked;
 
 }
