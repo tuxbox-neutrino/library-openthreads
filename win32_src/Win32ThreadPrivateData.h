@@ -49,13 +49,11 @@ private:
     ~Win32ThreadPrivateData();
 
     unsigned int stackSize;
-    bool stackSizeLocked;
     bool isRunning;
 
 	int  cancelMode; // 0 - deffered (default) 1-asynch 2-disabled  
 
     bool detached;
-    bool idSet;
 
     Thread::ThreadPriority threadPriority;
 

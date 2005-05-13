@@ -234,10 +234,6 @@ Thread::Thread() {
 
     pd->stackSize = 0;
 
-    pd->stackSizeLocked = false;
-
-    pd->idSet = false;
-
     pd->isRunning = false;
 
     pd->cancelMode = 0;
@@ -326,8 +322,10 @@ int Thread::start() {
     Win32ThreadPrivateData *pd = static_cast<Win32ThreadPrivateData *> (_prvData);
     //-------------------------------------------------------------------------
     // Prohibit the stack size from being changed.
-    //
-    pd->stackSizeLocked = true;
+    // (bb 5/13/2005) it acctualy doesn't matter.
+    // 1) usually setStackSize()/start() sequence iz serialized. 
+    // 2) if not than we're in trouble anyway - nothing is protected 
+    // pd->stackSizeLocked = true;
     unsigned long ID;
 
     pd->tid.set( CreateThread(NULL,pd->stackSize,ThreadPrivateActions::StartThread,static_cast<void *>(this),0,&ID));
@@ -337,8 +335,6 @@ int Thread::start() {
     if(!pd->tid) {
         return -1;
     }
-
-    pd->idSet = true;
 
     return 0;
 
@@ -534,7 +530,7 @@ int Thread::getSchedulePolicy() {
 //
 int Thread::setStackSize(size_t stackSize) {
     Win32ThreadPrivateData *pd = static_cast<Win32ThreadPrivateData *> (_prvData);
-    if(pd->stackSizeLocked == true) return 13;  // EACESS
+    if(pd->isRunning) return 13;  // cannot set stack size of running thread  return EACESS
     pd->stackSize = stackSize;
     return 0;
 }
