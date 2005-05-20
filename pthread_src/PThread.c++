@@ -837,7 +837,7 @@ int Thread::YieldCurrentThread() {
 //
 // Use: public
 //
-int Thread::usleep(unsigned int microsec)
+int Thread::microSleep(unsigned int microsec)
 {
     return ::usleep(microsec);
 }

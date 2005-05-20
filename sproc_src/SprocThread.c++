@@ -378,7 +378,7 @@ Thread::~Thread() {
 	cancel();
 
 	while (pd->isRunning == true) {
-	    usleep(1);
+	    ::usleep(1);
 	}
 
     }
@@ -757,7 +757,7 @@ int Thread::YieldCurrentThread() {
 //
 // Use: public
 //
-int Thread::usleep(unsigned int microsec)
+int Thread::microSleep(unsigned int microsec)
 {
     return ::usleep(microsec);
 }

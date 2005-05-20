@@ -607,7 +607,7 @@ int Thread::YieldCurrentThread()
     return SwitchToThread();
 }
 
-int Thread::usleep(unsigned int microsec)
+int Thread::microSleep(unsigned int microsec)
 {
 #if _WIN32_WINNT < 0x0400 // simulate
     ::Sleep(microsec/1000);

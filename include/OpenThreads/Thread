@@ -329,13 +329,14 @@ public:
       */
     int setProcessorAffinity( unsigned int cpunum );
 
-    /** usleep method.  This is not strictly thread API but is used
+    /** microSleep method, equivilant to the posix usleep(microsec).
+      *  This is not strictly thread API but is used
       * so often with threads. It's basically UNIX usleep. Parameter is
       * number of microseconds we current thread to sleep. Returns 0 on
       * succes, non-zero on failure (UNIX errno or GetLastError() will give
       * detailed description.
       */
-    static int usleep( unsigned int microsec);
+    static int microSleep( unsigned int microsec);
 
 private:
 
