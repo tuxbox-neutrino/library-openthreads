@@ -31,6 +31,10 @@ using std::size_t;
 using std::size_t;
 #endif
 
+#if defined(_MSC_VER)
+    #pragma warning( disable : 4996 )
+#endif
+
 #include "Win32ThreadPrivateData.h"
 
 struct Win32ThreadCanceled{};
