@@ -162,7 +162,7 @@ ifeq ($(OS),SunOS)
     CXX               = CC
     INC               += 
     DEPARG            = -xM1
-    DEF               += -features=extensions 
+    DEF               += -features=extensions -mt -KPIC
     OPTF              = -xO4
     DBGF              = -g 
     SHARED            = -G
@@ -172,7 +172,7 @@ ifeq ($(OS),SunOS)
       ARCHARGS          = 
     endif
   endif
-  LINKARGS          =  
+  LINKARGS          =  -mt
   INSTXCMD        = cp
   INSTRCMD        = cp
   INST_LOCATION   = /opt/OpenThreads
