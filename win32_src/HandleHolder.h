@@ -79,7 +79,7 @@ namespace OpenThreads {
         }
 
         operator bool (){
-            return _handle != INVALID_HANDLE_VALUE;
+            return _handle != INVALID_HANDLE_VALUE && _handle != NULL;
         };
 
     };
