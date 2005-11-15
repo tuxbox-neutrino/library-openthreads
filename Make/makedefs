@@ -210,9 +210,9 @@ endif
 ifeq ($(OS),Linux)
 SYSARCH           := $(shell arch)
   ifeq ($(COMPILER),intel)
-    CXX               = ecc
-    CXXFLAGS          += -x c++
-    DEF               += -KPIC
+    CXX               = icpc
+    CXXFLAGS          += -x c++ -cxxlib-gcc -gcc-version=323
+    DEF               += -fPIC
     OPTF              = -O2
     DBGF              = -g
     ifeq ($(SYSARCH),ia64)
