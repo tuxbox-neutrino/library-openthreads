@@ -6,19 +6,25 @@ install : default instclean
 instlinks : instclean
 	$(LINK) `pwd`/include/OpenThreads $(INST_INCLUDE)/OpenThreads
 	[ -d $(INST_LIBS) ] || mkdir -p $(INST_LIBS)
-	$(LINK) `pwd`/lib/$(OS)$(ARCH)/libOpenThreads.$(LIB_EXT) $(INST_LIBS)/libOpenThreads.$(LIB_EXT)
+	$(LINK) `pwd`/lib/$(OS)$(ARCH)/$(LIB_PREFIX)OpenThreads.$(LIB_EXT) $(INST_LIBS)/$(LIB_PREFIX)OpenThreads.$(LIB_EXT)
 
 instclean :
 	rm -rf $(INST_INCLUDE)/OpenThreads
-	rm -f $(INST_LIBS)/libOpenThreads.$(LIB_EXT)
+	rm -f $(INST_LIBS)/$(LIB_PREFIX)OpenThreads.$(LIB_EXT)
+ifdef IMP_LIB_EXT
+	rm -f $(INST_IMP_LIBS)/libOpenThreads.$(IMP_LIB_EXT)
+endif
 
 instlibonly : 
 	@$(MAKE) __inst_lib
-	
 
 __inst_lib:
 	@[ -d $(INST_LIBS) ] || mkdir -p $(INST_LIBS)
-	@$(INSTXCMD) lib/$(OS)$(ARCH)/libOpenThreads.$(LIB_EXT) $(INST_LIBS)/libOpenThreads.$(LIB_EXT)
+	@$(INSTXCMD) lib/$(OS)$(ARCH)/$(LIB_PREFIX)OpenThreads.$(LIB_EXT) $(INST_LIBS)/$(LIB_PREFIX)OpenThreads.$(LIB_EXT)
+ifdef IMP_LIB_EXT
+	@[ -d $(INST_IMP_LIBS) ] || mkdir -p $(INST_IMP_LIBS)
+	$(INSTXCMD) lib/$(OS)$(ARCH)/libOpenThreads.$(IMP_LIB_EXT) $(INST_IMP_LIBS)/libOpenThreads.$(IMP_LIB_EXT)
+endif
 
 __inst_headers:
 	@[ -d $(INST_INCLUDE)/OpenThreads ] || mkdir -p $(INST_INCLUDE)/OpenThreads

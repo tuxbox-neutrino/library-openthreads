@@ -17,8 +17,8 @@
 //
 
 #include <sys/types.h>
-#include <assert.h>
-#include <stdio.h>
+#include <cassert>
+#include <cstdio>
 #include <iostream>
 #include <vector>
 #include <OpenThreads/Thread>

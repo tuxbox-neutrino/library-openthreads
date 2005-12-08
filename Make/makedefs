@@ -301,7 +301,7 @@ ifeq ($(OS),CYGWIN)
   SHARED            = -shared \
 		      -Wl,--export-all-symbols  \
 		      -Wl,--output-def,lib$(TARGET_BASENAME).def \
-		      -Wl,--out-implib,$(TOPDIR)/lib/lib$(TARGET_BASENAME).dll.a \
+		      -Wl,--out-implib,lib$(TARGET_BASENAME).dll.a \
 
   ARCH              = 32
   ARCHARGS          = 
@@ -317,11 +317,12 @@ ifeq ($(OS),CYGWIN)
 
   LIB_PREFIX        = cyg
   LIB_EXT           = dll
-
+  IMP_LIB_EXT       = dll.a
   LINK              = cp -f
 
   INST_LOCATION   = /usr/local/OpenThreads
   INST_LIBS         = $(INST_LOCATION)/bin
+  INST_IMP_LIBS     = $(INST_LOCATION)/lib
   INST_PLUGINS      = $(INST_LOCATION)/bin
   INST_INCLUDE      = $(INST_LOCATION)/include
   INST_SHARE        = /usr/local/OpenThreads
@@ -345,7 +346,7 @@ ifeq ($(OS),MINGW)
   SHARED            = -shared -mthreads \
 		      -Wl,--export-all-symbols  \
 		      -Wl,--output-def,lib$(TARGET_BASENAME).def \
-		      -Wl,--out-implib,$(TOPDIR)/lib/lib$(TARGET_BASENAME).dll.a \
+		      -Wl,--out-implib,lib$(TARGET_BASENAME).dll.a \
 
   ARCH              = 32
   ARCHARGS          = 
@@ -358,17 +359,19 @@ ifeq ($(OS),MINGW)
   OTHER_LIBS        = $(GL_LIBS) -lwinmm
   PTHREAD_LIB       =
   OPEN_THREAD_LIB = -lOpenThreadsWin32
-	
+
 
 #  LIB_PREFIX        = cyg
   LIB_PREFIX        = lib
   LIB_EXT           = dll
+  IMP_LIB_EXT       = dll.a
   PLUGIN_EXT        = dll
 
   LINK              = cp -f
 
   INST_LOCATION   = /usr/local/OpenThreads
   INST_LIBS         = $(INST_LOCATION)/bin
+  INST_IMP_LIBS     = $(INST_LOCATION)/lib
   INST_INCLUDE      = $(INST_LOCATION)/include
   INST_SHARE        = /usr/local/OpenThreads
   INST_DEMOS        = $(INST_SHARE)/bin

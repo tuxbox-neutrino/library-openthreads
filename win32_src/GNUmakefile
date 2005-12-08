@@ -33,6 +33,6 @@ DEF +=  -DOPENTHREADS_EXPORTS
 endif
 
 TARGET_BASENAME = OpenThreads
-LIB = libOpenThreads
+LIB = $(LIB_PREFIX)$(TARGET_BASENAME)
 
 include $(TOPDIR)/Make/makerules

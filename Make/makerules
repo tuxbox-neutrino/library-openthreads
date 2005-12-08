@@ -64,7 +64,7 @@ $(STATICLIB): $(OBJS)
 else
 
     $(LIB) : $(OBJS)
-		$(CXX) $(LDFLAGS) $(SHARED) $(OBJS) $(LIBS) -o $@.$(LIB_EXT)
+	$(CXX) $(LDFLAGS) $(SHARED) $(OBJS) $(LIBS) -o $@.$(LIB_EXT)
 
     $(STATICLIB): $(OBJS)
 	    ar rv $@ $?
@@ -87,6 +87,9 @@ $(LIB:=.dbg) :
 	      THISDIR=../$(THISDIR)\
 	      MAKEDEPEND=Makedepend $(LIB)
 	@$(MAKE) LNSRC=$(DEBUGDIR)/$(LIB).$(LIB_EXT) LNDEST=$(LIBINST)/$(OS)$(ARCH)/$(LIB).$(LIB_EXT) __link
+ifdef IMP_LIB_EXT
+	@$(MAKE) LNSRC=$(DEBUGDIR)/lib$(TARGET_BASENAME)$(IMP_LIB_EXT) LNDEST=$(LIBINST)/lib$(TARGET_BASENAME)$(IMP_LIB_EXT) __link
+endif
 
 $(LIB:=.staticdbg) : 
 	[ -d $(DEBUGDIR) ] || mkdir $(DEBUGDIR)
@@ -112,6 +115,9 @@ $(LIB:=.opt) :
 	        THISDIR=../$(THISDIR)\
 	        MAKEDEPEND=Makedepend $(LIB)
 	@$(MAKE) LNSRC=$(OPTDIR)/$(LIB).$(LIB_EXT) LNDEST=$(LIBINST)/$(OS)$(ARCH)/$(LIB).$(LIB_EXT) __link
+ifdef IMP_LIB_EXT
+	@$(MAKE) LNSRC=$(OPTDIR)/lib$(TARGET_BASENAME).$(IMP_LIB_EXT) LNDEST=$(LIBINST)/$(OS)$(ARCH)/lib$(TARGET_BASENAME).$(IMP_LIB_EXT) __link
+endif
 
 $(LIB:=.static) : 
 	[ -d $(OPTDIR) ] || mkdir $(OPTDIR)

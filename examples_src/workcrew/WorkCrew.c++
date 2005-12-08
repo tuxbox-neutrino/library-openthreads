@@ -16,12 +16,13 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 //
 
-#include <stdio.h>
+#include <cstdio>
 #include <sys/types.h>
 #include <unistd.h>
 #include <iostream>
 #include <vector>
-#include <assert.h>
+#include <cassert>
+#include <cerrno>
 #include "ThreadObserver.h"
 #include "ThreadReporter.h"
 
@@ -231,8 +232,13 @@ private:
 	float total;
 	for(i=0; i<_work->datapts.size();++i) {
 	    for(total=0, j=0; j<10000000; ++j) {
+#if defined(WIN32) && !defined(__CYGWIN__)
+		total += double(rand()) / double(RAND_MAX);
+		total -= double(rand()) / double(RAND_MAX);
+#else
 		total += drand48();
 		total -= drand48();
+#endif
 	    }
 	    result += _work->datapts[i] + total;
 	    result -= total;
