@@ -46,8 +46,8 @@ MAKEDEPEND = ignore
 ####################################################################### 
 VERSION_MAJOR    = 1
 VERSION_MINOR    = 4
-VERSION_RELEASE  = 1
-VERSION_REVISION ?= 0
+VERSION_RELEASE  = 2
+VERSION_REVISION ?= 1
 ifneq (,$(OPENTHREADS_VERSION_REVISION))
 VERSION_REVISION = $(OPENTHREADS_VERSION_REVISION)
 endif
@@ -328,7 +328,7 @@ ifeq ($(OS),CYGWIN)
   INST_IMP_LIBS     = $(INST_LOCATION)/lib
   INST_PLUGINS      = $(INST_LOCATION)/bin
   INST_INCLUDE      = $(INST_LOCATION)/include
-  INST_SHARE        = /usr/local/OpenThreads
+  INST_SHARE        = $(INST_LOCATION)
   INST_DEMOS        = $(INST_SHARE)/bin
   INST_DEMO_SRC     = $(INST_SHARE)/src/demos
   INST_DOC          = $(INST_SHARE)/doc
@@ -377,7 +377,7 @@ ifeq ($(OS),MINGW)
   INST_LIBS         = $(INST_LOCATION)/bin
   INST_IMP_LIBS     = $(INST_LOCATION)/lib
   INST_INCLUDE      = $(INST_LOCATION)/include
-  INST_SHARE        = /usr/local/OpenThreads
+  INST_SHARE        = $(INST_LOCATION)
   INST_DEMOS        = $(INST_SHARE)/bin
   INST_DEMO_SRC     = $(INST_SHARE)/src/demos
   INST_DOC          = $(INST_SHARE)/doc
