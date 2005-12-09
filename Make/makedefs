@@ -76,6 +76,8 @@ OBJS       = $(CXXFILES:.cpp=.o) \
 	     	 $(YACCFILES:.y=.o)\
 	     	 $(LEXFILES:.l=.o)	    
 
+EXE_EXT    =
+
 DOF        = $(OPTF)
 DEBUGDIR   = $(OS)$(ARCH).Debug
 OPTDIR     = $(OS)$(ARCH).Opt
@@ -303,6 +305,7 @@ ifeq ($(OS),CYGWIN)
 		      -Wl,--output-def,lib$(TARGET_BASENAME).def \
 		      -Wl,--out-implib,lib$(TARGET_BASENAME).dll.a \
 
+  EXE_EXT           =.exe
   ARCH              = 32
   ARCHARGS          = 
   LINKARGS          = -W -Wall
@@ -348,6 +351,7 @@ ifeq ($(OS),MINGW)
 		      -Wl,--output-def,lib$(TARGET_BASENAME).def \
 		      -Wl,--out-implib,lib$(TARGET_BASENAME).dll.a \
 
+  EXE_EXT           =.exe
   ARCH              = 32
   ARCHARGS          = 
   LINKARGS          = -W -Wall

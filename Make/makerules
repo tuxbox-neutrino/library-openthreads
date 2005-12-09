@@ -24,10 +24,10 @@ cleandependdbg :
 cleantarget : cleantargetopt cleantargetdbg
 
 cleantargetopt : 
-	@[ -d $(OPTDIR) ] && cd $(OPTDIR); rm -f $(EXEC) $(LIB).$(LIB_EXT) 
+	@[ -d $(OPTDIR) ] && cd $(OPTDIR); rm -f $(EXEC)$(EXE_EXT) $(LIB).$(LIB_EXT) 
 
 cleantargetdbg : 
-	@[ -d $(DEBUGDIR) ] && cd $(DEBUGDIR); rm -f $(EXEC) $(LIB).$(LIB_EXT) 
+	@[ -d $(DEBUGDIR) ] && cd $(DEBUGDIR); rm -f $(EXEC)$(EXE_EXT) $(LIB).$(LIB_EXT) 
 
 clean : cleanopt cleandbg
 
@@ -77,7 +77,7 @@ $(EXEC:=.dbg) :
               $(MAKE) -f ../GNUmakefile "DOF=$(DBGF)"  TOPDIR=../${TOPDIR} \
                         THISDIR=../$(THISDIR)\
                                   MAKEDEPEND=Makedepend $(EXEC)
-        @$(MAKE) LNSRC=$(DEBUGDIR)/$(EXEC) LNDEST=$(BININST)/$(OS)$(ARCH)/$(EXEC) __link
+        @$(MAKE) LNSRC=$(DEBUGDIR)/$(EXEC)$(EXE_EXT) LNDEST=$(BININST)/$(OS)$(ARCH)/$(EXEC)$(EXE_EXT) __link
 
 
 $(LIB:=.dbg) :
@@ -105,7 +105,7 @@ $(EXEC:=.opt) :
       $(MAKE) -f ../GNUmakefile DOF=$(OPTF)  TOPDIR=../${TOPDIR} \
           THISDIR=../$(THISDIR)\
           MAKEDEPEND=Makedepend $(EXEC)
-	@$(MAKE) LNSRC=$(OPTDIR)/$(EXEC) LNDEST=$(BININST)/$(OS)$(ARCH)/$(EXEC) __link
+	@$(MAKE) LNSRC=$(OPTDIR)/$(EXEC)$(EXE_EXT) LNDEST=$(BININST)/$(OS)$(ARCH)/$(EXEC)$(EXE_EXT) __link
 
 
 $(LIB:=.opt) : 
