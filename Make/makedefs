@@ -265,14 +265,13 @@ ifeq ($(OS),FreeBSD)
     endif
   DEPARG            = -MM
   INC               +=  -I/usr/local/include -I/usr/X11R6/include
-  DEF               += -W -Wall
+  DEF               += -W -Wall -pthread
   OPTF              = -O2 
   DBGF              = -g 
   SHARED            = -shared
   ARCH              = 32
   ARCHARGS          = 
-  INST_LOCATION   = /usr/local
-  INST_SHARE = /usr/share/OpenThreads
+  LINKARGS          = -pthread
 endif
 
 #### MacOS X specific definitions
