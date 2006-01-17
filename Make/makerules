@@ -77,7 +77,7 @@ $(EXEC:=.dbg) :
               $(MAKE) -f ../GNUmakefile "DOF=$(DBGF)"  TOPDIR=../${TOPDIR} \
                         THISDIR=../$(THISDIR)\
                                   MAKEDEPEND=Makedepend $(EXEC)
-        @$(MAKE) LNSRC=$(DEBUGDIR)/$(EXEC)$(EXE_EXT) LNDEST=$(BININST)/$(OS)$(ARCH)/$(EXEC)$(EXE_EXT) __link
+        @$(MAKE) LNSRC=$(DEBUGDIR)/$(EXEC)$(EXE_EXT) LNDEST=$(BININST)/$(EXEC)$(EXE_EXT) __link
 
 
 $(LIB:=.dbg) :
@@ -86,9 +86,9 @@ $(LIB:=.dbg) :
 	  $(MAKE) -f ../$(MAKEFILE) "DOF=$(DBGF)"  TOPDIR=../${TOPDIR} \
 	      THISDIR=../$(THISDIR)\
 	      MAKEDEPEND=Makedepend $(LIB)
-	@$(MAKE) LNSRC=$(DEBUGDIR)/$(LIB).$(LIB_EXT) LNDEST=$(LIBINST)/$(OS)$(ARCH)/$(LIB).$(LIB_EXT) __link
+	@$(MAKE) LNSRC=$(DEBUGDIR)/$(LIB).$(LIB_EXT) LNDEST=$(LIBINST)/$(LIB).$(LIB_EXT) __link
 ifdef IMP_LIB_EXT
-	@$(MAKE) LNSRC=$(DEBUGDIR)/lib$(TARGET_BASENAME)$(IMP_LIB_EXT) LNDEST=$(LIBINST)/lib$(TARGET_BASENAME)$(IMP_LIB_EXT) __link
+	@$(MAKE) LNSRC=$(DEBUGDIR)/lib$(TARGET_BASENAME)$(IMP_LIB_EXT) LNDEST=$(IMP_LIBINST)/lib$(TARGET_BASENAME)$(IMP_LIB_EXT) __link
 endif
 
 $(LIB:=.staticdbg) : 
@@ -97,7 +97,7 @@ $(LIB:=.staticdbg) :
 	  $(MAKE) -f ../$(MAKEFILE) "DOF=$(DBGF)" TOPDIR=../${TOPDIR} \
 	        THISDIR=../$(THISDIR)\
 	        MAKEDEPEND=Makedepend $(STATICLIB)
-	@$(MAKE) LNSRC=$(DEBUGDIR)/$(STATICLIB) LNDEST=$(LIBINST)/$(OS)$(ARCH)/$(STATICLIB) __link
+	@$(MAKE) LNSRC=$(DEBUGDIR)/$(STATICLIB) LNDEST=$(LIBINST)/$(STATICLIB) __link
 
 $(EXEC:=.opt) :
 	@[ -d $(OPTDIR) ] || mkdir $(OPTDIR)
@@ -105,7 +105,7 @@ $(EXEC:=.opt) :
       $(MAKE) -f ../GNUmakefile DOF=$(OPTF)  TOPDIR=../${TOPDIR} \
           THISDIR=../$(THISDIR)\
           MAKEDEPEND=Makedepend $(EXEC)
-	@$(MAKE) LNSRC=$(OPTDIR)/$(EXEC)$(EXE_EXT) LNDEST=$(BININST)/$(OS)$(ARCH)/$(EXEC)$(EXE_EXT) __link
+	@$(MAKE) LNSRC=$(OPTDIR)/$(EXEC)$(EXE_EXT) LNDEST=$(BININST)/$(EXEC)$(EXE_EXT) __link
 
 
 $(LIB:=.opt) : 
@@ -114,9 +114,9 @@ $(LIB:=.opt) :
 	  $(MAKE) -f ../$(MAKEFILE) DOF=$(OPTF) TOPDIR=../${TOPDIR} \
 	        THISDIR=../$(THISDIR)\
 	        MAKEDEPEND=Makedepend $(LIB)
-	@$(MAKE) LNSRC=$(OPTDIR)/$(LIB).$(LIB_EXT) LNDEST=$(LIBINST)/$(OS)$(ARCH)/$(LIB).$(LIB_EXT) __link
+	@$(MAKE) LNSRC=$(OPTDIR)/$(LIB).$(LIB_EXT) LNDEST=$(LIBINST)/$(LIB).$(LIB_EXT) __link
 ifdef IMP_LIB_EXT
-	@$(MAKE) LNSRC=$(OPTDIR)/lib$(TARGET_BASENAME).$(IMP_LIB_EXT) LNDEST=$(LIBINST)/$(OS)$(ARCH)/lib$(TARGET_BASENAME).$(IMP_LIB_EXT) __link
+	@$(MAKE) LNSRC=$(OPTDIR)/lib$(TARGET_BASENAME).$(IMP_LIB_EXT) LNDEST=$(IMP_LIBINST)/lib$(TARGET_BASENAME).$(IMP_LIB_EXT) __link
 endif
 
 $(LIB:=.static) : 
@@ -125,7 +125,7 @@ $(LIB:=.static) :
 	  $(MAKE) -f ../$(MAKEFILE) DOF=$(OPTF) TOPDIR=../${TOPDIR} \
 	        THISDIR=../$(THISDIR)\
 	        MAKEDEPEND=Makedepend $(STATICLIB)
-	@$(MAKE) LNSRC=$(OPTDIR)/$(STATICLIB) LNDEST=$(LIBINST)/$(OS)$(ARCH)/$(STATICLIB) __link
+	@$(MAKE) LNSRC=$(OPTDIR)/$(STATICLIB) LNDEST=$(LIBINST)/$(STATICLIB) __link
 
 
 Makedepend : $(CXXFILES) $(C++FILES) $(CFILES) 

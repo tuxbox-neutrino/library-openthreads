@@ -20,10 +20,10 @@ instlibonly :
 
 __inst_lib:
 	@[ -d $(INST_LIBS) ] || mkdir -p $(INST_LIBS)
-	@$(INSTXCMD) lib/$(OS)$(ARCH)/$(LIB_PREFIX)OpenThreads.$(LIB_EXT) $(INST_LIBS)/$(LIB_PREFIX)OpenThreads.$(LIB_EXT)
+	@$(INSTXCMD) $(LIBINST)/$(LIB_PREFIX)OpenThreads.$(LIB_EXT) $(INST_LIBS)/$(LIB_PREFIX)OpenThreads.$(LIB_EXT)
 ifdef IMP_LIB_EXT
 	@[ -d $(INST_IMP_LIBS) ] || mkdir -p $(INST_IMP_LIBS)
-	$(INSTXCMD) lib/$(OS)$(ARCH)/libOpenThreads.$(IMP_LIB_EXT) $(INST_IMP_LIBS)/libOpenThreads.$(IMP_LIB_EXT)
+	$(INSTXCMD) $(IMP_LIBINST)/libOpenThreads.$(IMP_LIB_EXT) $(INST_IMP_LIBS)/libOpenThreads.$(IMP_LIB_EXT)
 endif
 
 __inst_headers:

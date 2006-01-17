@@ -81,8 +81,9 @@ EXE_EXT    =
 DOF        = $(OPTF)
 DEBUGDIR   = $(OS)$(ARCH).Debug
 OPTDIR     = $(OS)$(ARCH).Opt
-BININST    = bin
-LIBINST    = lib
+BININST    = bin/$(OS)$(ARCH)
+LIBINST    = lib/$(OS)$(ARCH)
+IMP_LIBINST = lib/$(OS)$(ARCH)
 
 INST_LOCATION      = /usr/local
 INST_LIBS          = $(INST_LOCATION)/lib$(ARCH_EXT)
@@ -300,9 +301,8 @@ ifeq ($(OS),CYGWIN)
   OPTF              = -O2 
   DBGF              = -g 
   SHARED            = -shared \
-		      -Wl,--export-all-symbols  \
-		      -Wl,--output-def,lib$(TARGET_BASENAME).def \
 		      -Wl,--out-implib,lib$(TARGET_BASENAME).dll.a \
+		      -Wl,--export-all-symbols
 
   EXE_EXT           =.exe
   ARCH              = 32
@@ -317,21 +317,22 @@ ifeq ($(OS),CYGWIN)
 
   PTHREAD_LIB       = -lpthread
 
+  LIBINST    = bin/$(OS)$(ARCH)
+  IMP_LIBINST    = lib/$(OS)$(ARCH)
+
   LIB_PREFIX        = cyg
   LIB_EXT           = dll
   IMP_LIB_EXT       = dll.a
   LINK              = cp -f
 
-  INST_LOCATION   = /usr/local/OpenThreads
-  INST_LIBS         = $(INST_LOCATION)/bin
-  INST_IMP_LIBS     = $(INST_LOCATION)/lib
-  INST_PLUGINS      = $(INST_LOCATION)/bin
+  INST_LOCATION     = /usr/local/OpenThreads
   INST_INCLUDE      = $(INST_LOCATION)/include
-  INST_SHARE        = $(INST_LOCATION)
-  INST_DEMOS        = $(INST_SHARE)/bin
-  INST_DEMO_SRC     = $(INST_SHARE)/src/demos
-  INST_DOC          = $(INST_SHARE)/doc
-  INST_DATA         = $(INST_SHARE)/data
+  INST_SHARE_PREFIX = $(INST_LOCATION)
+  INST_SRC          = $(INST_SHARE_PREFIX)/src
+  INST_EXAMPLES     = $(INST_SHARE_PREFIX)/bin
+  INST_EXAMPLE_SRC  = $(INST_SHARE_PREFIX)/src/demos
+  INST_DOC          = $(INST_SHARE_PREFIX)/doc
+  INST_DATA         = $(INST_SHARE_PREFIX)/data
   MAKEDIST          = $(TOPDIR)/Make/makeinnosetup
 
 endif
@@ -363,8 +364,9 @@ ifeq ($(OS),MINGW)
   PTHREAD_LIB       =
   OPEN_THREAD_LIB = -lOpenThreadsWin32
 
+  LIBINST    = bin/$(OS)$(ARCH)
+  IMP_LIBINST    = lib/$(OS)$(ARCH)
 
-#  LIB_PREFIX        = cyg
   LIB_PREFIX        = lib
   LIB_EXT           = dll
   IMP_LIB_EXT       = dll.a
