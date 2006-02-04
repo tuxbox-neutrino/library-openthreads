@@ -39,7 +39,7 @@ versions and optimized version of targets reside in parallel.
   make clobberopt     - Removes optimized object files and targets
   make clobberdbg     - Removes debug object files and targets
   make beautify       - Pretty print C++ files
-  make docs           - Builds documentation database for current target
+  make documentation  - Builds documentation database for current target
   make depend         - Force a rebuild of the dependency file.  Note that
                         dependency files are generated automatically during
                         builds.
