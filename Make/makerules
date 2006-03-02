@@ -1,16 +1,16 @@
 
 default : opt 
 
-opt   : $(LIB:=.opt)\
-        $(EXEC:=.opt)\
+opt   : $(LIB:=.opt) \
+        $(EXEC:=.opt) \
 
-debug : $(LIB:=.dbg)\
-        $(EXEC:=.dbg)\
+debug : $(LIB:=.dbg) \
+        $(EXEC:=.dbg) \
 
-static: $(LIB:=.static)\
-        $(EXEC:=.opt)\
+static: $(LIB:=.static) \
+        $(EXEC:=.opt) \
 
-staticdebug: $(LIB:=.staticdbg)\
+staticdebug: $(LIB:=.staticdbg) \
         $(EXEC:=.dbg)
 
 cleandepend : cleandependopt cleandependdbg
@@ -75,16 +75,16 @@ $(EXEC:=.dbg) :
 	@[ -d $(DEBUGDIR) ] || mkdir $(DEBUGDIR)
         @cd $(DEBUGDIR); \
               $(MAKE) -f ../GNUmakefile "DOF=$(DBGF)"  TOPDIR=../${TOPDIR} \
-                        THISDIR=../$(THISDIR)\
+                        THISDIR=../$(THISDIR) \
                                   MAKEDEPEND=Makedepend $(EXEC)
         @$(MAKE) LNSRC=$(DEBUGDIR)/$(EXEC)$(EXE_EXT) LNDEST=$(BININST)/$(EXEC)$(EXE_EXT) __link
 
 
 $(LIB:=.dbg) :
 	@[ -d $(DEBUGDIR) ] || mkdir $(DEBUGDIR)
-	@cd $(DEBUGDIR);\
+	@cd $(DEBUGDIR); \
 	  $(MAKE) -f ../$(MAKEFILE) "DOF=$(DBGF)"  TOPDIR=../${TOPDIR} \
-	      THISDIR=../$(THISDIR)\
+	      THISDIR=../$(THISDIR) \
 	      MAKEDEPEND=Makedepend $(LIB)
 	@$(MAKE) LNSRC=$(DEBUGDIR)/$(LIB).$(LIB_EXT) LNDEST=$(LIBINST)/$(LIB).$(LIB_EXT) __link
 ifdef IMP_LIB_EXT
@@ -93,9 +93,9 @@ endif
 
 $(LIB:=.staticdbg) : 
 	[ -d $(DEBUGDIR) ] || mkdir $(DEBUGDIR)
-	cd $(DEBUGDIR);\
+	cd $(DEBUGDIR); \
 	  $(MAKE) -f ../$(MAKEFILE) "DOF=$(DBGF)" TOPDIR=../${TOPDIR} \
-	        THISDIR=../$(THISDIR)\
+	        THISDIR=../$(THISDIR) \
 	        MAKEDEPEND=Makedepend $(STATICLIB)
 	@$(MAKE) LNSRC=$(DEBUGDIR)/$(STATICLIB) LNDEST=$(LIBINST)/$(STATICLIB) __link
 
@@ -103,16 +103,16 @@ $(EXEC:=.opt) :
 	@[ -d $(OPTDIR) ] || mkdir $(OPTDIR)
 	@cd $(OPTDIR); \
       $(MAKE) -f ../GNUmakefile DOF=$(OPTF)  TOPDIR=../${TOPDIR} \
-          THISDIR=../$(THISDIR)\
+          THISDIR=../$(THISDIR) \
           MAKEDEPEND=Makedepend $(EXEC)
 	@$(MAKE) LNSRC=$(OPTDIR)/$(EXEC)$(EXE_EXT) LNDEST=$(BININST)/$(EXEC)$(EXE_EXT) __link
 
 
 $(LIB:=.opt) : 
 	@[ -d $(OPTDIR) ] || mkdir $(OPTDIR)
-	@cd $(OPTDIR);\
+	@cd $(OPTDIR); \
 	  $(MAKE) -f ../$(MAKEFILE) DOF=$(OPTF) TOPDIR=../${TOPDIR} \
-	        THISDIR=../$(THISDIR)\
+	        THISDIR=../$(THISDIR) \
 	        MAKEDEPEND=Makedepend $(LIB)
 	@$(MAKE) LNSRC=$(OPTDIR)/$(LIB).$(LIB_EXT) LNDEST=$(LIBINST)/$(LIB).$(LIB_EXT) __link
 ifdef IMP_LIB_EXT
@@ -121,9 +121,9 @@ endif
 
 $(LIB:=.static) : 
 	[ -d $(OPTDIR) ] || mkdir $(OPTDIR)
-	cd $(OPTDIR);\
+	cd $(OPTDIR); \
 	  $(MAKE) -f ../$(MAKEFILE) DOF=$(OPTF) TOPDIR=../${TOPDIR} \
-	        THISDIR=../$(THISDIR)\
+	        THISDIR=../$(THISDIR) \
 	        MAKEDEPEND=Makedepend $(STATICLIB)
 	@$(MAKE) LNSRC=$(OPTDIR)/$(STATICLIB) LNDEST=$(LIBINST)/$(STATICLIB) __link
 
@@ -134,17 +134,17 @@ ifeq ($(OS),IRIX)
 else
 	@ touch $@
 	@if [ ! -d .depend ] ; then  \
-	    mkdir .depend;\
-	    depfiles="$+";\
-	else\
-	    depfiles="$?";\
-	fi;\
-	if [ ! -z "$$depfiles" ]; then\
+	    mkdir .depend; \
+	    depfiles="$+"; \
+	else \
+	    depfiles="$?"; \
+	fi; \
+	if [ ! -z "$$depfiles" ]; then \
 	for f in $$depfiles; do \
 	    echo "$(CXX) $(DEPARG) $(INC) $$f  pipeto .depend/`basename $$f`"; \
 	    $(CXX) $(DEPARG) $(INC) $$f > .depend/`basename $$f`; \
-	    grep $$f $@ || echo include .depend/`basename $$f` >> Makedepend ;\
-	done;\
+	    grep $$f $@ || echo include .depend/`basename $$f` >> Makedepend ; \
+	done; \
 	fi
 endif
 

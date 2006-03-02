@@ -54,7 +54,7 @@ endif
 VERSION       = $(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_RELEASE)
 
 
-DEF        = -DOPENTHREADS_VERSION=\"$(VERSION)\"\
+DEF        = -DOPENTHREADS_VERSION=\"$(VERSION)\" \
              -DOPENTHREADS_VERSION_REVISION="$(VERSION_REVISION)"
 #			 -DGLX_GLXEXT_PROTOTYPES
 
@@ -73,7 +73,7 @@ LDFLAGS    = $(ARCHARGS) $(DOF) $(LINKARGS) -L$(TOPDIR)/lib/$(OS)$(ARCH)
 OBJS       = $(CXXFILES:.cpp=.o) \
 	     $(C++FILES:.c++=.o) \
 	     	 $(CFILES:.c=.o) \
-	     	 $(YACCFILES:.y=.o)\
+	     	 $(YACCFILES:.y=.o) \
 	     	 $(LEXFILES:.l=.o)	    
 
 EXE_EXT    =
@@ -109,25 +109,25 @@ INSTLOGFILE        = /tmp/.openThreads_inst_log
 YFLAGS             = -d
 
 RECURSIVE_TARGETS = \
-	  opt\
-	  debug\
-      static\
-      staticdebug\
-	  clean\
-	  cleandepend\
-	  cleandependopt\
-	  cleandependdbg\
-	  cleandbg\
-	  cleanopt\
-	  cleantarget\
-	  cleantargetopt\
-	  cleantargetdbg\
-	  clobber\
-	  clobberdbg\
-	  clobberopt\
-	  beautify\
-	  docs\
-	  depend\
+	  opt \
+	  debug \
+      static \
+      staticdebug \
+	  clean \
+	  cleandepend \
+	  cleandependopt \
+	  cleandependdbg \
+	  cleandbg \
+	  cleanopt \
+	  cleantarget \
+	  cleantargetopt \
+	  cleantargetdbg \
+	  clobber \
+	  clobberdbg \
+	  clobberopt \
+	  beautify \
+	  docs \
+	  depend \
 
 
 ifeq ($(USE_OPEN_THREAD),1)
@@ -191,8 +191,8 @@ ifeq ($(OS),IRIX)
   DEPARG            = -M
   INC               +=  -I${TOPDIR}/include 
   DEF               +=  -LANG:std -OPT:Olimit=0 \
-	 	       			-DEBUG:woff=1682 -DEBUG:woff=3303\
-		       			-MDupdate $(MAKEDEPEND)\
+	 	       			-DEBUG:woff=1682 -DEBUG:woff=3303 \
+		       			-MDupdate $(MAKEDEPEND) \
   OPTF              = -O2 
   DBGF              = -g 
   SHARED            = -shared
