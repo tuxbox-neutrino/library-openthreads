@@ -261,17 +261,23 @@ endif
 
 #### FreeBSD specific definitions
 ifeq ($(OS),FreeBSD)
-    ifeq (x$(CXX),x)
-      CXX               = g++
-    endif
+  SYSARCH	    := $(shell uname -m)
+  ifeq (x$(CXX),x)
+    CXX             = g++
+  endif
   DEPARG            = -MM
   INC               +=  -I/usr/local/include -I/usr/X11R6/include
   DEF               += -W -Wall -pthread
   OPTF              = -O2 
   DBGF              = -g 
   SHARED            = -shared
-  ARCH              = 32
-  ARCHARGS          = 
+  ifeq ($(SYSARCH),amd64)
+    ARCH            = 64
+    ARCHARGS	    = -fPIC
+  else
+    ARCH            = 32
+    ARCHARGS        = 
+  endif
   LINKARGS          = -pthread
 endif
 
