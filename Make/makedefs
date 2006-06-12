@@ -261,24 +261,31 @@ endif
 
 #### FreeBSD specific definitions
 ifeq ($(OS),FreeBSD)
-  SYSARCH	    := $(shell uname -m)
+  SYSARCH	    := $(shell uname -p)
   ifeq (x$(CXX),x)
     CXX             = g++
   endif
+  ifeq (x$(PTHREAD_CFLAGS),x)
+    PTHREAD_CFLAGS  = -pthread
+  endif
+  ifeq (x$(PTHREAD_LIBS),x)
+    PTHREAD_LIBS    = -pthread
+  endif
+  ifeq (x$(ARCH),x)
+    ARCH            = $(SYSARCH)
+  endif
   DEPARG            = -MM
   INC               +=  -I/usr/local/include -I/usr/X11R6/include
-  DEF               += -W -Wall -pthread
+  DEF               += -W -Wall $(PTHREAD_CFLAGS)
   OPTF              = -O2 
   DBGF              = -g 
   SHARED            = -shared
   ifeq ($(SYSARCH),amd64)
-    ARCH            = 64
     ARCHARGS	    = -fPIC
   else
-    ARCH            = 32
     ARCHARGS        = 
   endif
-  LINKARGS          = -pthread
+  LINKARGS          = $(PTHREAD_LIBS)
 endif
 
 #### MacOS X specific definitions
