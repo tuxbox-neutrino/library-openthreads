@@ -48,13 +48,15 @@ unsigned WIN32MutexSpin <instance>::__max = WIN32MutexSpin <instance>::__low_max
 template <int instance>
 unsigned WIN32MutexSpin <instance>::__last = 0;
 
+
+
 static void _S_nsec_sleep(int __log_nsec) {
 
     if (__log_nsec <= 20) {
-        Sleep(0);
-     } else {
+        SwitchToThread(); //Sleep(0); // adegli replaced it Sleep by SwitchToThread
+	} else {
         Sleep(1 << (__log_nsec - 20));
-     }
+	}
 }
 
 
