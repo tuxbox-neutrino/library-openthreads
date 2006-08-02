@@ -416,6 +416,27 @@ ifeq ($(OS),HP-UX)
   PLUGIN_EXT        = sl
   DYNAMICLIBRARYLIB = -ldld
   OTHER_LIBS        = -lm 
+  INSTXCMD           = install -c -m 755
+  INSTRCMD           = install -c -m 644
+endif
+
+#### AIX Specific Additions
+
+ifeq ($(OS),AIX)
+  CXX 		    = g++ -D_REENTRANT
+  DEPARG            = -M 
+  INC               += 
+  DEF               +=
+  OPTF              = -O
+  DBGF              = -g 
+  SHARED            = 
+  ARCH              = 32
+  LDFLAGS	    = 
+  LINKARGS          = -lpthread
+  LIB_EXT           = a
+  PLUGIN_EXT        = a
+  DYNAMICLIBRARYLIB = -ldld
+  OTHER_LIBS        = -lm 
 endif
 
 
