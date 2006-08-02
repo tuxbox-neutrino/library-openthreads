@@ -85,7 +85,7 @@ BININST    = bin/$(OS)$(ARCH)
 LIBINST    = lib/$(OS)$(ARCH)
 IMP_LIBINST = lib/$(OS)$(ARCH)
 
-INST_LOCATION      = /usr/local
+INST_LOCATION      ?= /usr/local
 INST_LIBS          = $(INST_LOCATION)/lib$(ARCH_EXT)
 INST_INCLUDE       = $(INST_LOCATION)/include
 INST_SHARE         = $(INST_LOCATION)/share
@@ -178,7 +178,7 @@ ifeq ($(OS),SunOS)
   LINKARGS          =  -mt
   INSTXCMD        = cp
   INSTRCMD        = cp
-  INST_LOCATION   = /opt/OpenThreads
+  INST_LOCATION   ?= /opt/OpenThreads
   INST_LIBS       = $(INST_LOCATION)/lib$(ARCH_EXT)
   INST_INCLUDE    = $(INST_LOCATION)/include
   MAKEDIST        = $(TOPDIR)/Make/makepkg
@@ -338,7 +338,7 @@ ifeq ($(OS),CYGWIN)
   IMP_LIB_EXT       = dll.a
   LINK              = cp -f
 
-  INST_LOCATION     = /usr/local/OpenThreads
+  INST_LOCATION     ?= /usr/local/OpenThreads
   INST_INCLUDE      = $(INST_LOCATION)/include
   INST_SHARE_PREFIX = $(INST_LOCATION)
   INST_SRC          = $(INST_SHARE_PREFIX)/src
@@ -387,7 +387,7 @@ ifeq ($(OS),MINGW)
 
   LINK              = cp -f
 
-  INST_LOCATION   = /usr/local/OpenThreads
+  INST_LOCATION   ?= /usr/local/OpenThreads
   INST_LIBS         = $(INST_LOCATION)/bin
   INST_IMP_LIBS     = $(INST_LOCATION)/lib
   INST_INCLUDE      = $(INST_LOCATION)/include
