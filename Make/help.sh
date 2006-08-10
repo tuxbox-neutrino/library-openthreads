@@ -44,8 +44,19 @@ versions and optimized version of targets reside in parallel.
                         dependency files are generated automatically during
                         builds.
 
+Note for Linux users:
+On some linux kernels (2.4 kernels with backdated 2.6 functionality) there is a two param sched_setaffinity defined, instead of
+the standard three param sched_setaffinity.  This will lead to a compile failure, if this occurs then use the make line:
 
-Solars and IRIX can build 64 bit targets.  These require the ARCH=64 argument.
+   make COMPILE_USING_TWO_PARAM_sched_setaffinity=yes
+
+Or set up the COMPILE_USING_TWO_PARAM_sched_setaffinity env var in your .bashrc
+  
+  export COMPILE_USING_TWO_PARAM_sched_setaffinity=yes
+  make
+
+
+Solaris and IRIX can build 64 bit targets.  These require the ARCH=64 argument.
 For example:
 
   make ARCH=64         - Same as 'make ARCH=64 opt'
