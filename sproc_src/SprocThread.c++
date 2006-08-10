@@ -349,7 +349,6 @@ Thread::Thread() {
     pd->threadPolicy = Thread::THREAD_SCHEDULE_DEFAULT;
 
     _prvData = static_cast<void *>(pd);
-
 }
 
 //----------------------------------------------------------------------------
@@ -773,4 +772,18 @@ static void sproc_dead_child_sig_handler(int sigid) {
 
     sigset(SIGCLD, sproc_dead_child_sig_handler);
 
+}
+
+int Thread::setProcessorAffinity( unsigned int cpunum )
+{
+    return -1;
+}
+
+//-----------------------------------------------------------------------------
+//
+// Description:  Get the number of processors
+//
+int OpenThreads::GetNumberOfProcessors()
+{
+    return 1;
 }

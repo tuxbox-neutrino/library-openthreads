@@ -31,6 +31,15 @@
 namespace OpenThreads {
 
 /**
+ *  Get the number of processors.
+ *
+ *  Note, systems where no support exists for querrying the number of processors, 1 is returned. 
+ *
+ */
+extern OPENTHREAD_EXPORT_DIRECTIVE int GetNumberOfProcessors();
+
+
+/**
  *  @class Thread
  *  @brief  This class provides an object-oriented thread interface.
  */
@@ -129,6 +138,7 @@ public:
      *  @return the Thread::ThreadPriority of the master thread.
      */
     static ThreadPriority GetMasterPriority() {return s_masterThreadPriority;};
+
 
     /**
      *  Get a unique thread id.  This id is monotonically increasing.
@@ -359,7 +369,7 @@ private:
      *  Implementation-specific data
      */
     void * _prvData;
-
+    
     /**
      *  Master thread's priority, set by Thread::Init.
      */

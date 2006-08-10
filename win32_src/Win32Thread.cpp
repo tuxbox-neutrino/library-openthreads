@@ -237,23 +237,15 @@ Thread::Thread() {
     Win32ThreadPrivateData *pd = new Win32ThreadPrivateData();
 
     pd->stackSize = 0;
-
     pd->isRunning = false;
-
     pd->cancelMode = 0;
-
     pd->uniqueId = 0;
-
     pd->threadPriority = Thread::THREAD_PRIORITY_DEFAULT;
-
     pd->threadPolicy = Thread::THREAD_SCHEDULE_DEFAULT;
-
     pd->detached = false;
-
     pd->cancelEvent.set(CreateEvent(NULL,TRUE,FALSE,NULL));
 
     _prvData = static_cast<void *>(pd);
-
 }
 
 
@@ -639,4 +631,14 @@ int Thread::microSleep(unsigned int microsec)
     }
     return 0;
 #endif
+}
+
+
+//-----------------------------------------------------------------------------
+//
+// Description:  Get the number of processors
+//
+int OpenThreads::GetNumberOfProcessors()
+{
+    return 1;
 }

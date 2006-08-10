@@ -65,7 +65,7 @@ private:
 
     volatile int uniqueId;
 
-    volatile unsigned int cpunum;
+    volatile int cpunum;
 
     static int nextId;
 

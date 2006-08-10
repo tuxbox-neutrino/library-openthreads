@@ -34,6 +34,10 @@
 #include <sys/unistd.h>
 #endif
 
+#if defined (__linux__)
+    #include <sched.h>
+#endif
+
 #include <OpenThreads/Thread>
 #include "PThreadPrivateData.h"
 
@@ -109,10 +113,27 @@ private:
 	PThreadPrivateData *pd =
 	    static_cast<PThreadPrivateData *>(thread->_prvData);
 
-#ifdef __sgi
-    pthread_setrunon_np( pd->cpunum );
-#endif
+        if (pd->cpunum>=0)
+        {
+            #ifdef __sgi
+            
+                pthread_setrunon_np( pd->cpunum );
+                
+            #elif defined (__linux__) && defined(CPU_SET)
 
+                cpu_set_t cpumask;
+                CPU_ZERO( &cpumask );
+                CPU_SET( pd->cpunum, &cpumask );
+
+                #if defined(COMPILE_USING_TWO_PARAM_sched_setaffinity)
+                    sched_setaffinity( 0, &cpumask );
+                #else
+                    sched_setaffinity( 0, sizeof(cpumask), &cpumask );
+                #endif
+                
+            #endif
+        }
+        
 
 	ThreadCleanupStruct tcs;
 	tcs.thread = thread;
@@ -354,6 +375,7 @@ Thread::Thread() {
     pd->nextId++;
     pd->threadPriority = Thread::THREAD_PRIORITY_DEFAULT;
     pd->threadPolicy = Thread::THREAD_SCHEDULE_DEFAULT;
+    pd->cpunum = -1;
 
     _prvData = static_cast<void *>(pd);
 
@@ -481,7 +503,10 @@ int Thread::setProcessorAffinity(unsigned int cpunum)
 {
     PThreadPrivateData *pd = static_cast<PThreadPrivateData *> (_prvData);
     pd->cpunum = cpunum;
+    if (pd->cpunum<0) return -1;
+    
 #ifdef __sgi
+
     int status;
     pthread_attr_t thread_attr;
 
@@ -492,6 +517,24 @@ int Thread::setProcessorAffinity(unsigned int cpunum)
 
     status = pthread_attr_setscope( &thread_attr, PTHREAD_SCOPE_BOUND_NP );
     return status;
+
+#elif defined (__linux__) && defined(CPU_SET)
+
+  
+    if (pd->isRunning && Thread::CurrentThread()==this)
+    {
+        cpu_set_t cpumask;
+        CPU_ZERO( &cpumask );
+        CPU_SET( pd->cpunum, &cpumask );
+
+        #if defined(COMPILE_USING_TWO_PARAM_sched_setaffinity)
+            return sched_setaffinity( 0, &cpumask );
+        #else
+            return sched_setaffinity( 0, sizeof(cpumask), &cpumask );
+        #endif
+    }
+
+    return -1;
 #else
     return -1;
 #endif
@@ -827,7 +870,8 @@ void Thread::printSchedulingInfo() {
 //
 // Use: protected
 //
-int Thread::YieldCurrentThread() {
+int Thread::YieldCurrentThread()
+{
 
     return sched_yield();
 
@@ -840,4 +884,19 @@ int Thread::YieldCurrentThread() {
 int Thread::microSleep(unsigned int microsec)
 {
     return ::usleep(microsec);
+}
+
+
+
+//-----------------------------------------------------------------------------
+//
+// Description:  Get the number of processors
+//
+int OpenThreads::GetNumberOfProcessors()
+{
+#if defined(__linux__)
+    return sysconf(_SC_NPROCESSORS_CONF);
+#else
+    return 1;
+#endif    
 }

@@ -40,5 +40,7 @@ endif
 TARGET_BASENAME = OpenThreads
 LIB = $(LIB_PREFIX)$(TARGET_BASENAME)
 
-
+ifeq ($(COMPILE_USING_TWO_PARAM_sched_setaffinity),yes)
+DEF += -DCOMPILE_USING_TWO_PARAM_sched_setaffinity
+endif
 include $(TOPDIR)/Make/makerules
