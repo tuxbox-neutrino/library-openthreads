@@ -38,8 +38,8 @@ CFG=OpenThreads - Win32 Debug
 # PROP BASE Target_Dir ""
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 0
-# PROP Output_Dir "../lib/Win32"
-# PROP Intermediate_Dir "Release"
+# PROP Output_Dir "../bin/$(PlatformName)"
+# PROP Intermediate_Dir "$(PlatformName)/$(ConfigurationName)"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 CPP=cl.exe
@@ -55,8 +55,8 @@ BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
 LINK32=link.exe
-# ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /machine:I386
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /machine:I386 /out:"../bin/Win32/OpenThreadsWin32.dll"
+# ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /debug /machine:I386 /pdbtype:sept
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /debug /machine:I386 /pdbtype:sept /out:"$(OutDir)/OpenThreadsWin32.dll" /implib:"../lib/$(PlatformName)/OpenThreadsWin32.lib"
 
 !ELSEIF  "$(CFG)" == "OpenThreads - Win32 Debug"
 
@@ -67,8 +67,8 @@ LINK32=link.exe
 # PROP BASE Target_Dir ""
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 1
-# PROP Output_Dir "../lib/Win32/"
-# PROP Intermediate_Dir "Debug"
+# PROP Output_Dir "../bin/$(PlatformName)"
+# PROP Intermediate_Dir "$(PlatformName)/$(ConfigurationName)"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 CPP=cl.exe
@@ -85,7 +85,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /debug /machine:I386 /out:"../bin/Win32/OpenThreadsWin32d.dll" /pdbtype:sept
+# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /debug /machine:I386 /pdbtype:sept /out:"$(OutDir)/OpenThreadsWin32d.dll" /implib:"../lib/$(PlatformName)/OpenThreadsWin32d.lib"
 
 !ELSEIF  "$(CFG)" == "OpenThreads - Win32 Release Static"
 
@@ -97,8 +97,8 @@ LINK32=link.exe
 # PROP BASE Target_Dir ""
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 0
-# PROP Output_Dir "Release_Static"
-# PROP Intermediate_Dir "Release_Static"
+# PROP Output_Dir "../lib/$(PlatformName)"
+# PROP Intermediate_Dir "$(PlatformName)/$(ConfigurationName)_Static"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 MTL=midl.exe
@@ -115,7 +115,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
-# ADD LIB32 /nologo /out:"../lib/Win32/OpenThreadsWin32_s.lib"
+# ADD LIB32 /nologo /out:"../lib/$(PlatformName)/OpenThreadsWin32_s.lib"
 
 !ELSEIF  "$(CFG)" == "OpenThreads - Win32 Debug Static"
 
@@ -127,8 +127,8 @@ LIB32=link.exe -lib
 # PROP BASE Target_Dir ""
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 1
-# PROP Output_Dir "Debug_Static"
-# PROP Intermediate_Dir "Debug_Static"
+# PROP Output_Dir "../lib/$(PlatformName)"
+# PROP Intermediate_Dir "$(PlatformName)/$(ConfigurationName)_Static"
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 MTL=midl.exe
@@ -145,7 +145,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
-# ADD LIB32 /nologo /out:"../lib/Win32/OpenThreadsWin32d_s.lib"
+# ADD LIB32 /nologo /out:"../lib/$(PlatformName)/OpenThreadsWin32d_s.lib"
 
 !ENDIF 
 

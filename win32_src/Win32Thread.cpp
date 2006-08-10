@@ -559,7 +559,7 @@ int Thread::setProcessorAffinity( unsigned int cpunum )
 {
     Win32ThreadPrivateData *pd = static_cast<Win32ThreadPrivateData *> (_prvData);
     DWORD affinityMask  = 0x1 << cpunum ; // thread affinity mask
-	DWORD res =
+	DWORD_PTR res =
 		SetThreadAffinityMask
 		(
 			pd->tid.get(),                  // handle to thread

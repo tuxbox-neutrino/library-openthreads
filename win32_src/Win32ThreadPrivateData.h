@@ -48,7 +48,7 @@ private:
     Win32ThreadPrivateData() {};
     ~Win32ThreadPrivateData();
 
-    unsigned int stackSize;
+    size_t stackSize;
     bool isRunning;
 
 	int  cancelMode; // 0 - deffered (default) 1-asynch 2-disabled  
