@@ -640,5 +640,8 @@ int Thread::microSleep(unsigned int microsec)
 //
 int OpenThreads::GetNumberOfProcessors()
 {
-    return 1;
+    SYSTEM_INFO sysInfo;
+    GetSystemInfo(&sysInfo);
+
+    return sysInfo.dwNumberOfProcessors;
 }
