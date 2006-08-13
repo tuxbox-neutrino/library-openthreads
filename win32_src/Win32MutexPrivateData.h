@@ -37,11 +37,15 @@ class Win32MutexPrivateData {
 
 private:
 
-    Win32MutexPrivateData() {};
+    Win32MutexPrivateData();
 
     ~Win32MutexPrivateData();
-
+#define USE_CRITICAL_SECTION
+#ifdef USE_CRITICAL_SECTION
+    CRITICAL_SECTION _cs;
+#else
     volatile unsigned long mutex;
+#endif
 
 };
 
