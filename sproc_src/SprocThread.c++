@@ -442,14 +442,14 @@ int Thread::getThreadId() {
 //
 // Use: public
 //
-int Thread::getProcessId() {
+size_t Thread::getProcessId() {
 
     SprocThreadPrivateData *pd =
 	static_cast<SprocThreadPrivateData *> (_prvData);
 
     if(pd->idSet == false) return getpid();
 
-    return pd->pid;
+    return (size_t)(pd->pid);
 
 }
 

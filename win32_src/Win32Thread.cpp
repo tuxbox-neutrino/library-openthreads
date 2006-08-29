@@ -292,9 +292,9 @@ int Thread::getThreadId() {
 //
 // Use: public
 //
-int Thread::getProcessId() {
+size_t Thread::getProcessId() {
 
-    return (int) GetCurrentProcessId();
+    return (size_t) GetCurrentProcessId();
 
 }
 //-----------------------------------------------------------------------------

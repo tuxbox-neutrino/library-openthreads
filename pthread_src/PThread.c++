@@ -484,13 +484,13 @@ int Thread::getThreadId() {
 //
 // Use: public
 //
-int Thread::getProcessId() {
+size_t Thread::getProcessId() {
 
     PThreadPrivateData *pd = static_cast<PThreadPrivateData *> (_prvData);
 
-    if(pd->idSet == false) return (unsigned int) pthread_self();
+    if(pd->idSet == false) return (size_t)(pthread_self());
 
-    return (int)(pd->tid);
+    return (size_t)(pd->tid);
 }
 
 //-----------------------------------------------------------------------------
