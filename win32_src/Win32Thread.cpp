@@ -645,3 +645,18 @@ int OpenThreads::GetNumberOfProcessors()
 
     return sysInfo.dwNumberOfProcessors;
 }
+
+int OpenThreads::SetProcessorAffinityOfCurrentThread(unsigned int cpunum)
+{
+    if (cpunum<0) return -1;
+
+    Thread* thread = Thread::CurrentThread();
+    if (thread) 
+    {
+        return thread->setProcessorAffinity(cpunum);
+    }
+    else
+    {
+        // non op right now, needs implementation.
+    }
+}

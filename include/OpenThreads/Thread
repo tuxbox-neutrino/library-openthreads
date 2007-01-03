@@ -38,6 +38,13 @@ namespace OpenThreads {
  */
 extern OPENTHREAD_EXPORT_DIRECTIVE int GetNumberOfProcessors();
 
+/**
+ *  Set the processor affinity of current thread.
+ *
+ *  Note, systems where no support exists no affinity will be set, and -1 will be returned. 
+ *
+ */
+extern OPENTHREAD_EXPORT_DIRECTIVE int SetProcessorAffinityOfCurrentThread(unsigned int cpunum);
 
 /**
  *  @class Thread

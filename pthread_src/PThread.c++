@@ -900,3 +900,32 @@ int OpenThreads::GetNumberOfProcessors()
     return 1;
 #endif    
 }
+
+int OpenThreads::SetProcessorAffinityOfCurrentThread(unsigned int cpunum)
+{
+    if (cpunum<0) return -1;
+
+    Thread* thread = Thread::CurrentThread();
+    if (thread) 
+    {
+        return thread->setProcessorAffinity(cpunum);
+    }
+    else
+    {
+    #if defined (__linux__) && defined(CPU_SET)
+
+        cpu_set_t cpumask;
+        CPU_ZERO( &cpumask );
+        CPU_SET( cpunum, &cpumask );
+
+        #if defined(COMPILE_USING_TWO_PARAM_sched_setaffinity)
+            return sched_setaffinity( 0, &cpumask );
+        #else
+            return sched_setaffinity( 0, sizeof(cpumask), &cpumask );
+        #endif
+
+    #endif
+    }
+    
+    return -1;
+}
