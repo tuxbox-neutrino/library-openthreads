@@ -33,6 +33,9 @@
 #if defined (__linux__)
     #include <sched.h>
 #endif
+#if defined (__APPLE__)
+	#include <CoreServices/CoreServices.h>
+#endif
 
 #include <OpenThreads/Thread>
 #include "PThreadPrivateData.h"
@@ -892,9 +895,11 @@ int OpenThreads::GetNumberOfProcessors()
 {
 #if defined(__linux__)
     return sysconf(_SC_NPROCESSORS_CONF);
+#elif defined(__APPLE__)
+    return MPProcessorsScheduled();
 #else
     return 1;
-#endif    
+#endif
 }
 
 int OpenThreads::SetProcessorAffinityOfCurrentThread(unsigned int cpunum)
