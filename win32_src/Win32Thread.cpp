@@ -187,7 +187,7 @@ namespace OpenThreads {
             int status = SetThreadPriority( pd->tid.get(), prio);
 
             if(getenv("OUTPUT_THREADLIB_SCHEDULING_INFO") != 0)
-	        	PrintThreadSchedulingInfo(thread);
+                PrintThreadSchedulingInfo(thread);
 
             return status!=0;
         };
@@ -547,26 +547,26 @@ int Thread::setProcessorAffinity( unsigned int cpunum )
 {
     Win32ThreadPrivateData *pd = static_cast<Win32ThreadPrivateData *> (_prvData);
     DWORD affinityMask  = 0x1 << cpunum ; // thread affinity mask
-	DWORD_PTR res =
-		SetThreadAffinityMask
-		(
-			pd->tid.get(),                  // handle to thread
-			affinityMask					// thread affinity mask
-		);
+    DWORD_PTR res =
+        SetThreadAffinityMask
+        (
+            pd->tid.get(),                  // handle to thread
+            affinityMask                    // thread affinity mask
+        );
 /*
-	This one is funny.
-	This is "non-mandatory" affinity , winows will try to use dwIdealProcessor
-	whenever possible ( when Bill's account is over 50B, maybe :-) ).
+    This one is funny.
+    This is "non-mandatory" affinity , winows will try to use dwIdealProcessor
+    whenever possible ( when Bill's account is over 50B, maybe :-) ).
 
-	DWORD SetThreadIdealProcessor(
-	  HANDLE hThread,         // handle to the thread
- 	  DWORD dwIdealProcessor  // ideal processor number
-	);
+    DWORD SetThreadIdealProcessor(
+      HANDLE hThread,         // handle to the thread
+       DWORD dwIdealProcessor  // ideal processor number
+    );
 */
-	// return value 1 means call is ignored ( 9x/ME/SE )
-	if( res == 1 ) return -1;
-	// return value 0 is failure
-	return (res == 0) ? GetLastError() : 0 ;
+    // return value 1 means call is ignored ( 9x/ME/SE )
+    if( res == 1 ) return -1;
+    // return value 0 is failure
+    return (res == 0) ? GetLastError() : 0 ;
 }
 
 //-----------------------------------------------------------------------------
