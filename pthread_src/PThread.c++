@@ -33,8 +33,9 @@
 #if defined (__linux__)
     #include <sched.h>
 #endif
-#if defined (__APPLE__)
-	#include <CoreServices/CoreServices.h>
+#if defined (__FreeBSD__) || defined (__APPLE__) || defined (__MACH__)
+	#include <sys/types.h>
+	#include <sys/sysctl.h>
 #endif
 
 #include <OpenThreads/Thread>
@@ -895,10 +896,19 @@ int OpenThreads::GetNumberOfProcessors()
 {
 #if defined(__linux__)
     return sysconf(_SC_NPROCESSORS_CONF);
-#elif defined(__APPLE__)
-    return MPProcessorsScheduled();
 #else
-    return 1;
+	#if defined(__FreeBSD__) || defined(__APPLE__) || defined(__MACH__)
+		uint64_t num_cpus = 0;
+		size_t num_cpus_length = sizeof(num_cpus);
+		#if defined(__FreeBSD__)
+			sysctlbyname("hw.ncpu", &num_cpus, &num_cpus_length, NULL, 0);			
+		#else
+			sysctlbyname("hw.activecpu", &num_cpus, &num_cpus_length, NULL, 0);
+		#endif
+		return num_cpus;
+	#else
+		return 1;
+	#endif
 #endif
 }
 
