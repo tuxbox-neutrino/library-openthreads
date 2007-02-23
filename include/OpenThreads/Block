@@ -32,11 +32,30 @@ class Block
             release();
         }
 
-        inline void block()
+        inline bool block()
         {
             ScopedLock<OpenThreads::Mutex> mutlock(_mut);
             if( !_released )
-                _cond.wait(&_mut);
+            {
+                return _cond.wait(&_mut)==0;
+            }
+            else
+            {
+                return true;
+            }
+        }
+
+        inline bool block(unsigned long timeout)
+        {
+            ScopedLock<OpenThreads::Mutex> mutlock(_mut);
+            if( !_released )
+            {
+                return _cond.wait(&_mut, timeout)==0;
+            }
+            else
+            {
+                return true;
+            }
         }
 
         inline void release()
