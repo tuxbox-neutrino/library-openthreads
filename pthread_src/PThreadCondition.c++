@@ -155,7 +155,7 @@ int Condition::wait(Mutex *mutex, unsigned long int ms) {
 
     // Wait time is now + ms milliseconds
     unsigned int sec = ms / 1000;
-    unsigned int nsec = (ms % 1000) * 1000;
+    unsigned int nsec = (ms % 1000) * 1000000;
 
     struct timespec abstime;
     abstime.tv_sec = now.tv_sec + sec;
