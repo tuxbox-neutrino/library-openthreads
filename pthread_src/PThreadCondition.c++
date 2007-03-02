@@ -150,16 +150,25 @@ int Condition::wait(Mutex *mutex, unsigned long int ms) {
     PThreadMutexPrivateData *mpd =
         static_cast<PThreadMutexPrivateData *>(mutex->_prvData);
 
-    struct ::timeval now;
-    ::gettimeofday( &now, 0 );
 
-    // Wait time is now + ms milliseconds
+    // wait time is now in ms milliseconds, so need to convert to seconds and nanoseconds for timespec strucuture.
     unsigned int sec = ms / 1000;
     unsigned int nsec = (ms % 1000) * 1000000;
 
+    // add to the current time    
+    struct ::timeval now;
+    ::gettimeofday( &now, 0 );
+
+    sec += now.tv_sec;
+    nsec += now.tv_usec*1000;
+
+    // now pass on any overflow from nsec onto seconds.
+    sec += nsec / 1000000000;
+    nsec = nsec % 1000000000;
+
     struct timespec abstime;
-    abstime.tv_sec = now.tv_sec + sec;
-    abstime.tv_nsec = now.tv_usec*1000 + nsec;
+    abstime.tv_sec = sec;
+    abstime.tv_nsec = nsec;
 
     int status;
 
