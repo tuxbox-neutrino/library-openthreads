@@ -16,6 +16,10 @@ ADD_LIBRARY(${LIB_NAME}
 	PThreadPrivateData.h
 )
 
+TARGET_LINK_LIBRARIES(${LIB_NAME}
+	pthread
+)
+
 # Since we're building different platforms binaries in 
 # their respective directories, we need to set the 
 # link directory so it can find this location.
