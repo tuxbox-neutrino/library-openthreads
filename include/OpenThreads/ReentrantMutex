@@ -16,6 +16,7 @@
 
 #include <OpenThreads/Thread>
 #include <OpenThreads/Mutex>
+#include <OpenThreads/ScopedLock>
 
 namespace OpenThreads {
 

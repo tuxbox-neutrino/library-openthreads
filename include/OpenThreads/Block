@@ -17,6 +17,7 @@
 #include <OpenThreads/Thread>
 #include <OpenThreads/Barrier>
 #include <OpenThreads/Condition>
+#include <OpenThreads/ScopedLock>
 
 namespace OpenThreads {
 
