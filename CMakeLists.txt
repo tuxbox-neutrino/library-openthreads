@@ -11,6 +11,16 @@ SET(CMAKE_DEBUG_POSTFIX  "d")
 #SET(INSTALL_LIBDIR OpenThreads/lib)
 #SET(INSTALL_DOCDIR OpenThreads/docs)
 
+
+SET(CMAKE_DEBUG_POSTFIX  "d")
+
+SET(LIB_POSTFIX "")
+if (UNIX AND NOT WIN32)
+  if (CMAKE_SIZEOF_VOID_P MATCHES "8")
+  	SET(LIB_POSTFIX "64")
+  endif (CMAKE_SIZEOF_VOID_P MATCHES "8")
+endif (UNIX AND NOT WIN32)
+
 ################################################################################
 
 
