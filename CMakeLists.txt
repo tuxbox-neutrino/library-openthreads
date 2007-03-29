@@ -2,6 +2,10 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.4.6 FATAL_ERROR)
 
 PROJECT(OpenThreads)
 
+# We have some custom .cmake scripts not in the official distribution.
+# Maybe this can be used override existing behavior if needed?
+SET(CMAKE_MODULE_PATH "${OpenThreads_SOURCE_DIR}/CMakeModules;${CMAKE_MODULE_PATH}")
+
 ################################################################################
 # Installation stuff
 
@@ -15,11 +19,11 @@ SET(CMAKE_DEBUG_POSTFIX  "d")
 SET(CMAKE_DEBUG_POSTFIX  "d")
 
 SET(LIB_POSTFIX "")
-if (UNIX AND NOT WIN32)
-  if (CMAKE_SIZEOF_VOID_P MATCHES "8")
+IF(UNIX AND NOT WIN32 AND NOT APPLE)
+  IF(CMAKE_SIZEOF_VOID_P MATCHES "8")
   	SET(LIB_POSTFIX "64")
-  endif (CMAKE_SIZEOF_VOID_P MATCHES "8")
-endif (UNIX AND NOT WIN32)
+  ENDIF(CMAKE_SIZEOF_VOID_P MATCHES "8")
+ENDIF(UNIX AND NOT WIN32 AND NOT APPLE)
 
 ################################################################################
 
@@ -61,13 +65,19 @@ ELSE (DYNAMIC_OPENTHREADS)
 	SET(OPENTHREADS_USER_DEFINED_DYNAMIC_OR_STATIC "STATIC")
 ENDIF(DYNAMIC_OPENTHREADS)
 
+# Use our modified version of FindThreads.cmake which has Sproc hacks.
+FIND_PACKAGE(Threads)
+
 # Do we have sproc?
 IF(CMAKE_SYSTEM MATCHES IRIX)
-	INCLUDE(CheckIncludeFiles)
-	CHECK_INCLUDE_FILES("sys/types.h;sys/prctl.h"  CMAKE_HAVE_SPROC_H)
-	IF(CMAKE_HAVE_SPROC_H)
-		OPTION(OPENTHREADS_USE_SPROC_INSTEAD_OF_PTHREADS "Set to ON to build OpenThreads against sproc instead of pthreads" OFF)
-	ENDIF(CMAKE_HAVE_SPROC_H)
+	IF(CMAKE_USE_SPROC_INIT)
+		# In this case, only Sproc exists, so no option.
+		SET(OPENTHREADS_USE_SPROC_INSTEAD_OF_PTHREADS 1)
+	ELSE(CMAKE_USE_SPROC_INIT)
+		IF(CMAKE_HAVE_SPROC_H)
+			OPTION(OPENTHREADS_USE_SPROC_INSTEAD_OF_PTHREADS "Set to ON to build OpenThreads against sproc instead of pthreads" OFF)
+		ENDIF(CMAKE_HAVE_SPROC_H)
+	ENDIF(CMAKE_USE_SPROC_INIT)
 ENDIF(CMAKE_SYSTEM MATCHES IRIX)
 
 # Maybe we should be using the FindThreads.cmake module?

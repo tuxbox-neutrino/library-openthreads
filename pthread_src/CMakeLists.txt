@@ -17,7 +17,7 @@ ADD_LIBRARY(${LIB_NAME}
 )
 
 TARGET_LINK_LIBRARIES(${LIB_NAME}
-	pthread
+	${CMAKE_THREAD_LIBS_INIT}
 )
 
 # Since we're building different platforms binaries in 
