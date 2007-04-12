@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		00DAF8AA0BBE1A0E00EFEB98 /* Block in Headers */ = {isa = PBXBuildFile; fileRef = 00DAF8A70BBE1A0E00EFEB98 /* Block */; settings = {ATTRIBUTES = (Public, ); }; };
+		00DAF8AB0BBE1A0F00EFEB98 /* ReadWriteMutex in Headers */ = {isa = PBXBuildFile; fileRef = 00DAF8A80BBE1A0E00EFEB98 /* ReadWriteMutex */; settings = {ATTRIBUTES = (Public, ); }; };
+		00DAF8AC0BBE1A0F00EFEB98 /* ReentrantMutex in Headers */ = {isa = PBXBuildFile; fileRef = 00DAF8A90BBE1A0E00EFEB98 /* ReentrantMutex */; settings = {ATTRIBUTES = (Public, ); }; };
 		8D07F2BE0486CC7A007CD1D0 /* OpenThreads_Prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = 32BAE0B70371A74B00C91783 /* OpenThreads_Prefix.pch */; };
 		8D07F2C00486CC7A007CD1D0 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C1666FE841158C02AAC07 /* InfoPlist.strings */; };
 		8D07F2C40486CC7A007CD1D0 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 08FB77AAFE841565C02AAC07 /* Carbon.framework */; };
@@ -27,6 +30,9 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		00DAF8A70BBE1A0E00EFEB98 /* Block */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; name = Block; path = ../../include/OpenThreads/Block; sourceTree = SOURCE_ROOT; };
+		00DAF8A80BBE1A0E00EFEB98 /* ReadWriteMutex */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; name = ReadWriteMutex; path = ../../include/OpenThreads/ReadWriteMutex; sourceTree = SOURCE_ROOT; };
+		00DAF8A90BBE1A0E00EFEB98 /* ReentrantMutex */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; name = ReentrantMutex; path = ../../include/OpenThreads/ReentrantMutex; sourceTree = SOURCE_ROOT; };
 		089C1667FE841158C02AAC07 /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		08FB77AAFE841565C02AAC07 /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = /System/Library/Frameworks/Carbon.framework; sourceTree = "<absolute>"; };
 		32BAE0B70371A74B00C91783 /* OpenThreads_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OpenThreads_Prefix.pch; sourceTree = SOURCE_ROOT; };
@@ -125,9 +131,12 @@
 			isa = PBXGroup;
 			children = (
 				BE11836E05D7082A00EB53E5 /* Barrier */,
+				00DAF8A70BBE1A0E00EFEB98 /* Block */,
 				BE11836F05D7082A00EB53E5 /* Condition */,
 				BE11837005D7082A00EB53E5 /* Exports */,
 				BE11837105D7082A00EB53E5 /* Mutex */,
+				00DAF8A80BBE1A0E00EFEB98 /* ReadWriteMutex */,
+				00DAF8A90BBE1A0E00EFEB98 /* ReentrantMutex */,
 				BE11837205D7082A00EB53E5 /* ScopedLock */,
 				BE11837305D7082A00EB53E5 /* Thread */,
 			);
@@ -141,6 +150,9 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				00DAF8AA0BBE1A0E00EFEB98 /* Block in Headers */,
+				00DAF8AB0BBE1A0F00EFEB98 /* ReadWriteMutex in Headers */,
+				00DAF8AC0BBE1A0F00EFEB98 /* ReentrantMutex in Headers */,
 				BE11837D05D7083B00EB53E5 /* Barrier in Headers */,
 				BE11837E05D7083B00EB53E5 /* Condition in Headers */,
 				BE11837F05D7083B00EB53E5 /* Exports in Headers */,
