@@ -134,9 +134,13 @@ ENDIF("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
 IF(CMAKE_COMPILER_IS_GNUCXX)
     # To be complete, we might also do GNUCC flags, 
     # but everything here is C++ code.
-    # # FYI, if we do implement GNUCC, then -Wmissing-prototypes in another 
+    # FYI, if we do implement GNUCC, then -Wmissing-prototypes in another 
     # interesting C-specific flag.
-    SET(OPENTHREADS_AGGRESSIVE_WARNING_FLAGS "-Wall -Wparentheses -Wformat=2 -Wno-long-long -Wno-import -pedantic -Wnewline-eof -Wreturn-type -Wmissing-braces -Wunknown-pragmas -Wunused -Wshadow -Woverloaded-virtual")
+    # Also, there is a bug in gcc 4.0. Under C++, -pedantic will create
+    # errors instead of warnings for certain issues, including superfluous
+    # semicolons and commas, and the use of long long. -fpermissive seems
+    # to be the workaround. 
+    SET(OPENTHREADS_AGGRESSIVE_WARNING_FLAGS "-Wall -Wparentheses -Wformat=2 -Wno-long-long -Wno-import -pedantic -Wnewline-eof -Wreturn-type -Wmissing-braces -Wunknown-pragmas -Wunused -Wshadow -Woverloaded-virtual -fpermissive")
 ELSE(CMAKE_COMPILER_IS_GNUCXX)
     IF(MSVC)
         # FIXME: What are good aggressive warning flags for Visual Studio?
