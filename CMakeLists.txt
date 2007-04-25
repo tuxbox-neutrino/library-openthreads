@@ -196,7 +196,7 @@ IF(APPLE)
     # So we must only set the values the first time CMake is run, or we 
     # will overwrite any changes the user sets.
     # FORCE is used because the options are not reflected in the UI otherwise.
-    IF(NOT "${OPENTHREADS_CONFIG_HAS_BEEN_RUN_BEFORE}")
+    IF(NOT OPENTHREADS_CONFIG_HAS_BEEN_RUN_BEFORE)
         # This is really fragile, but CMake doesn't provide the OS system 
         # version information we need. (Darwin versions can be changed 
         # independently of OS X versions.)
@@ -206,6 +206,10 @@ IF(APPLE)
             SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility-inlines-hidden" CACHE STRING "Flags used by the compiler during all build types." FORCE)
         ELSE(EXISTS /Developer/SDKs/10.5.sdk)
             IF(EXISTS /Developer/SDKs/MacOSX10.4u.sdk)
+                # Unix layer on Tiger is 64-bit clean/ready so I think 
+                # it is okay to build 64-bit here. This presumes we 
+                # keep non-64-bit ready APIs (e.g. Carbon) out
+                # of OpenThreads.
                 SET(CMAKE_OSX_ARCHITECTURES "ppc;i386;ppc64;x86_64" CACHE STRING "Build architectures for OSX" FORCE)
                 #SET(CMAKE_OSX_ARCHITECTURES "ppc;i386" CACHE STRING "Build architectures for OSX" FORCE)
                 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility-inlines-hidden" CACHE STRING "Flags used by the compiler during all build types." FORCE)
@@ -213,7 +217,7 @@ IF(APPLE)
                 # No Universal Binary support
             ENDIF(EXISTS /Developer/SDKs/MacOSX10.4u.sdk)
         ENDIF(EXISTS /Developer/SDKs/10.5.sdk)
-    ENDIF(NOT "${OPENTHREADS_CONFIG_HAS_BEEN_RUN_BEFORE}")
+    ENDIF(NOT OPENTHREADS_CONFIG_HAS_BEEN_RUN_BEFORE)
 ENDIF(APPLE)
 
 
@@ -249,8 +253,8 @@ ENDIF(BUILD_DOCUMENTATION)
 
 # This needs to be run very last so other parts of the scripts can take
 # advantage of this.
-IF(NOT "${OPENTHREADS_CONFIG_HAS_BEEN_RUN_BEFORE}")
+IF(NOT OPENTHREADS_CONFIG_HAS_BEEN_RUN_BEFORE)
     SET(OPENTHREADS_CONFIG_HAS_BEEN_RUN_BEFORE 1 CACHE INTERNAL "Flag to track whether this is the first time running CMake or if CMake has been configured before")
-ENDIF(NOT "${OPENTHREADS_CONFIG_HAS_BEEN_RUN_BEFORE}")
+ENDIF(NOT OPENTHREADS_CONFIG_HAS_BEEN_RUN_BEFORE)
 
 
