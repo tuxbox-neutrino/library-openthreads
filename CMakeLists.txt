@@ -77,40 +77,7 @@ ENDIF(DYNAMIC_OPENTHREADS)
 # Use our modified version of FindThreads.cmake which has Sproc hacks.
 FIND_PACKAGE(Threads)
 
-# Do we have sproc?
-IF(CMAKE_SYSTEM MATCHES IRIX)
-    IF(CMAKE_USE_SPROC_INIT)
-        # In this case, only Sproc exists, so no option.
-        SET(OPENTHREADS_USE_SPROC_INSTEAD_OF_PTHREADS 1)
-    ELSE(CMAKE_USE_SPROC_INIT)
-        IF(CMAKE_HAVE_SPROC_H)
-            OPTION(OPENTHREADS_USE_SPROC_INSTEAD_OF_PTHREADS "Set to ON to build OpenThreads against sproc instead of pthreads" OFF)
-        ENDIF(CMAKE_HAVE_SPROC_H)
-    ENDIF(CMAKE_USE_SPROC_INIT)
-ENDIF(CMAKE_SYSTEM MATCHES IRIX)
-
-# Maybe we should be using the FindThreads.cmake module?
-IF(WIN32)
-    # So I think Cygwin wants to use pthreads
-    IF(CYGWIN)
-        SUBDIRS(src/OpenThreads/pthreads examples)
-    ELSE(CYGWIN)
-        # Everybody else including Msys should probably go here
-        SUBDIRS(src/OpenThreads/win32) 
-        # examples)
-    ENDIF(CYGWIN)
-ELSE(WIN32)
-    IF(UNIX)
-        IF(OPENTHREADS_USE_SPROC_INSTEAD_OF_PTHREADS)
-            SUBDIRS(src/OpenThreads/sproc examples)
-        ELSE(OPENTHREADS_USE_SPROC_INSTEAD_OF_PTHREADS)
-            SUBDIRS(src/OpenThreads/pthreads examples)
-        ENDIF(OPENTHREADS_USE_SPROC_INSTEAD_OF_PTHREADS)
-    ELSE(UNIX)
-        MESSAGE("Sorry, OpenThreads may not support your platform")
-    ENDIF(UNIX)
-ENDIF(WIN32)
-
+SUBDIRS(src/OpenThreads examples)
 
 # FIXME: Make optional install test programs
 # FIXME: /bin directory not correct for Windows
