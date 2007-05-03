@@ -2,6 +2,19 @@
 # what to do with it.
 ADD_DEFINITIONS(-DOPENTHREADS_EXPORTS)
 
+SET(HEADER_PATH ${OpenThreads_SOURCE_DIR}/include/OpenThreads)
+SET(OpenThreads_PUBLIC_HEADERS
+    ${HEADER_PATH}/Barrier
+    ${HEADER_PATH}/Block
+    ${HEADER_PATH}/Condition
+    ${HEADER_PATH}/Exports
+    ${HEADER_PATH}/Mutex  
+    ${HEADER_PATH}/ReadWriteMutex  
+    ${HEADER_PATH}/ReentrantMutex  
+    ${HEADER_PATH}/ScopedLock  
+    ${HEADER_PATH}/Thread
+)
+
 # User Options
 OPTION(DYNAMIC_OPENTHREADS "Set to ON to build OpenThreads for dynamic linking.  Use OFF for static." ON)
 IF   (DYNAMIC_OPENTHREADS)
@@ -46,3 +59,6 @@ ELSE(WIN32)
         MESSAGE("Sorry, OpenThreads may not support your platform")
     ENDIF(UNIX)
 ENDIF(WIN32)
+
+
+

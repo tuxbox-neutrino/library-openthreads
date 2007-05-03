@@ -37,19 +37,6 @@ ENDIF(UNIX AND NOT WIN32 AND NOT APPLE)
 ################################################################################
 
 
-# common files 
-SET(OpenThreads_PUBLIC_HEADERS
-    ${OpenThreads_SOURCE_DIR}/include/OpenThreads/Barrier
-    ${OpenThreads_SOURCE_DIR}/include/OpenThreads/Condition
-    ${OpenThreads_SOURCE_DIR}/include/OpenThreads/Exports
-    ${OpenThreads_SOURCE_DIR}/include/OpenThreads/Mutex
-    ${OpenThreads_SOURCE_DIR}/include/OpenThreads/ScopedLock
-    ${OpenThreads_SOURCE_DIR}/include/OpenThreads/Thread
-    ${OpenThreads_SOURCE_DIR}/include/OpenThreads/Block
-    ${OpenThreads_SOURCE_DIR}/include/OpenThreads/ReentrantMutex
-    ${OpenThreads_SOURCE_DIR}/include/OpenThreads/ReadWriteMutex
-)
-
 # Add a source group for the include headers so they are seen in IDEs.
 # Hmmm, this isn't working for me in Xcode.
 # SOURCE_GROUP(
