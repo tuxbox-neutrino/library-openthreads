@@ -21,6 +21,11 @@ ADD_LIBRARY(${LIB_NAME}
 	Win32ThreadPrivateData.h
 )
 
+
+IF(OPENTHREADS_SONAMES)
+  SET_TARGET_PROPERTIES(${LIB_NAME} PROPERTIES VERSION ${OPENTHREADS_VERSION} SOVERSION ${OPENTHREADS_SOVERSION})
+ENDIF(OPENTHREADS_SONAMES)
+
 # Since we're building different platforms binaries in 
 # their respective directories, we need to set the 
 # link directory so it can find this location.
