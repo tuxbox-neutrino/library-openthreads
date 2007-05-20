@@ -18,6 +18,9 @@ SET(CMAKE_MODULE_PATH "${OpenThreads_SOURCE_DIR}/CMakeModules;${CMAKE_MODULE_PAT
 ################################################################################
 # Installation stuff
 
+# We want to build SONAMES shared librariess
+SET(OPENTHREADS_SONAMES TRUE)
+
 SET(CMAKE_DEBUG_POSTFIX  "d")
 #SET(INSTALL_BINDIR OpenThreads/bin)
 #SET(INSTALL_INCDIR OpenThreads/include)
