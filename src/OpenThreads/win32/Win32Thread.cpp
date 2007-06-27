@@ -18,6 +18,7 @@
 #include <memory>
 #include <string>
 #include <iostream>
+#include <process.h>
 
 #if defined(_MSC_VER) && (_MSC_VER < 1300)
 #ifdef __SGI_STL
@@ -87,7 +88,7 @@ namespace OpenThreads {
         //-------------------------------------------------------------------------
         // Win32Threads standard start routine.
         //
-        static unsigned long __stdcall StartThread(void *data) {
+        static unsigned int __stdcall StartThread(void *data) {
 
             Thread *thread = static_cast<Thread *>(data);
             Win32ThreadPrivateData *pd =
@@ -318,9 +319,9 @@ int Thread::start() {
     // 1) usually setStackSize()/start() sequence iz serialized. 
     // 2) if not than we're in trouble anyway - nothing is protected 
     // pd->stackSizeLocked = true;
-    unsigned long ID;
+    unsigned int ID;
 
-    pd->tid.set( CreateThread(NULL,pd->stackSize,ThreadPrivateActions::StartThread,static_cast<void *>(this),0,&ID));
+    pd->tid.set( (void*)_beginthreadex(NULL,pd->stackSize,ThreadPrivateActions::StartThread,static_cast<void *>(this),0,&ID));
 
     pd->uniqueId = (int)ID;
 
