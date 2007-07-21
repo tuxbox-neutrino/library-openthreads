@@ -90,6 +90,10 @@ class Block
         Mutex _mut;
         Condition _cond;
         bool _released;
+
+    private:
+
+        Block(const Block&) {}
 };
 
 /** BlockCount is a block that can be used to halt a thread that is waiting for a specified number of operations to be completed.*/
@@ -157,11 +161,15 @@ class BlockCount
 
     protected:
 
-
         OpenThreads::Mutex _mut;
         OpenThreads::Condition _cond;
         unsigned int _blockCount;
         unsigned int _currentCount;
+
+    private:
+    
+        BlockCount(const BlockCount&) {}
+
 };
 
 }
