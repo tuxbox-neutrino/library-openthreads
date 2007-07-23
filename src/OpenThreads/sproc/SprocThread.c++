@@ -42,7 +42,7 @@ const char *OPENTHREAD_VERSION_STRING = "Sproc Thread Model, v1.1 ("__DATE__" "_
 #define DPRINTF(ARG)
 #endif
 
-void sproc_dead_child_sig_handler(int sigid);
+static void sproc_dead_child_sig_handler(int sigid);
 
 //-----------------------------------------------------------------------------
 // Initialize the static unique ids.
@@ -535,7 +535,7 @@ int Thread::join() {
 
     int status;
 
-    return waitpid((pid_t)getProcessId(), &status, NULL);
+    return waitpid((pid_t)getProcessId(), &status, 0);
     //return status;
 
 }
