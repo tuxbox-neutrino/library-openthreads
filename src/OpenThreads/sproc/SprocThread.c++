@@ -787,6 +787,8 @@ int OpenThreads::GetNumberOfProcessors()
 int OpenThreads::SetProcessorAffinityOfCurrentThread(unsigned int cpunum)
 {
     if (cpunum<0) return -1;
+    
+    Thread::Init();
 
     Thread* thread = Thread::CurrentThread();
     if (thread) 
