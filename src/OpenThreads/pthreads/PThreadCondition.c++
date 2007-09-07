@@ -23,7 +23,8 @@
 #  include <sys/time.h>
 #endif
 
-#include <assert.h>
+#include <stdio.h>
+
 #include <OpenThreads/Condition>
 #include "PThreadConditionPrivateData.h"
 #include "PThreadMutexPrivateData.h"
@@ -85,7 +86,10 @@ Condition::Condition() {
         new PThreadConditionPrivateData();
 
     int status = pthread_cond_init( &pd->condition, NULL );
-    assert(status == 0);
+    if (status)
+    {
+        printf("Error: pthread_cond_init(,) returned error status, status = %d\n",status);
+    }
 
     _prvData = static_cast<void *>(pd);
 
@@ -103,7 +107,10 @@ Condition::~Condition() {
         static_cast<PThreadConditionPrivateData *>(_prvData);
 
     int status = pthread_cond_destroy( &pd->condition );
-    assert(status == 0);
+    if (status)
+    {
+        printf("Error: pthread_cond_destroy(,) returned error status, status = %d\n",status);
+    }
 
     delete pd;
 

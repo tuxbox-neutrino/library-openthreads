@@ -21,7 +21,6 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <pthread.h>
-#include <assert.h>
 
 #if defined __linux || defined __sun || defined __APPLE__
 #include <string.h>
@@ -141,7 +140,10 @@ private:
 
 	// Set local storage so that Thread::CurrentThread() can return the right thing
 	int status = pthread_setspecific(PThreadPrivateData::s_tls_key, thread);
-	assert(status == 0);
+	if (status)
+        {
+            printf("Error: pthread_setspecific(,) returned error status, status = %d\n",status);
+        }
 
 	pthread_cleanup_push(thread_cleanup_handler, &tcs);
 
@@ -426,7 +428,10 @@ void Thread::Init() {
 
     // Allocate a key to be used to access thread local storage
     int status = pthread_key_create(&PThreadPrivateData::s_tls_key, NULL);
-    assert(status == 0);
+    if (status)
+    {
+        printf("Error: pthread_key_create(,) returned error status, status = %d\n",status);
+    }
 
 #ifdef ALLOW_PRIORITY_SCHEDULING
 
