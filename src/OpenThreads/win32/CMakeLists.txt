@@ -19,6 +19,7 @@ ADD_LIBRARY(${LIB_NAME}
 	Win32Thread.cpp
 	Win32ThreadBarrier.cpp
 	Win32ThreadPrivateData.h
+	../common/Version.cpp
 )
 
 

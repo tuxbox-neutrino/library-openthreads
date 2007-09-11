@@ -14,6 +14,7 @@ ADD_LIBRARY(${LIB_NAME}
 	PThreadMutex.c++
 	PThreadMutexPrivateData.h
 	PThreadPrivateData.h
+	../common/Version.cpp
 )
 
 IF(OPENTHREADS_SONAMES)
