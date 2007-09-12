@@ -798,5 +798,6 @@ int OpenThreads::SetProcessorAffinityOfCurrentThread(unsigned int cpunum)
     else
     {
         // non op right now, needs implementation.
+        return -1;
     }
 }
