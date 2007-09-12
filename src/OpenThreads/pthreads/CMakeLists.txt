@@ -17,6 +17,13 @@ ADD_LIBRARY(${LIB_NAME}
 	../common/Version.cpp
 )
 
+IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+    OPTION(TWO_PARAM_sched_setaffinity "Set to ON to use the two parameter sched_setaffinity (required on older rev's of RedHat)" OFF)
+    IF(TWO_PARAM_sched_setaffinity)
+      ADD_DEFINITIONS(-DCOMPILE_USING_TWO_PARAM_sched_setaffinity)
+    ENDIF(TWO_PARAM_sched_setaffinity)
+ENDIF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+
 IF(OPENTHREADS_SONAMES)
   SET_TARGET_PROPERTIES(${LIB_NAME} PROPERTIES VERSION ${OPENTHREADS_VERSION} SOVERSION ${OPENTHREADS_SOVERSION})
 ENDIF(OPENTHREADS_SONAMES)
