@@ -20,6 +20,8 @@
 #include <iostream>
 #include <process.h>
 
+#include <OpenThreads/ScopedLock>
+
 #if defined(_MSC_VER) && (_MSC_VER < 1300)
 #ifdef __SGI_STL
 using std::size_t;

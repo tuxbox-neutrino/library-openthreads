@@ -27,6 +27,7 @@
 #include <unistd.h>
 #include <list>
 #include <OpenThreads/Thread>
+#include <OpenThreads/ScopedLock>
 #include "SprocMutexPrivateData.h"
 #include "SprocThreadPrivateData.h"
 #include "SprocThreadPrivateActions.h"
