@@ -38,6 +38,7 @@
 #endif
 
 #include <OpenThreads/Thread>
+#include <OpenThreads/ScopedLock>
 #include "PThreadPrivateData.h"
 
 #include <iostream>
@@ -109,8 +110,13 @@ private:
     static void *StartThread(void *data) {
 
 	Thread *thread = static_cast<Thread *>(data);
+        
+        ScopedLock<Mutex> lock(thread->_prvDataMutex);
+        
 	PThreadPrivateData *pd =
 	    static_cast<PThreadPrivateData *>(thread->_prvData);
+            
+        if (thread->_prvData==0) return 0;
 
         if (pd->cpunum>=0)
         {
@@ -389,12 +395,14 @@ Thread::Thread() {
 //
 // Use: public.
 //
-Thread::~Thread() {
+Thread::~Thread()
+{
+    ScopedLock<Mutex> lock(_prvDataMutex); 
 
     PThreadPrivateData *pd = static_cast<PThreadPrivateData *>(_prvData);
 
-    if(pd->isRunning) {
-
+    if(pd->isRunning)
+    {
         std::cout<<"Error: Thread "<<this<<" still running in destructor"<<std::endl;
 
 	//---------------------------------------------------------------------
@@ -404,10 +412,13 @@ Thread::~Thread() {
     }
 
     delete pd;
+    
+    _prvData = 0;
 
 }
 
-Thread *Thread::CurrentThread() {
+Thread *Thread::CurrentThread()
+{
 
     Thread *thread =
 	static_cast<Thread *>(pthread_getspecific(PThreadPrivateData::s_tls_key));
@@ -639,7 +650,12 @@ int Thread::start() {
 //
 // Use: public
 //
-int Thread::startThread() { return start(); }
+int Thread::startThread()
+{
+    ScopedLock<Mutex> lock(_prvDataMutex);
+    if (_prvData) return start(); 
+    else return 0;
+}
 
 //-----------------------------------------------------------------------------
 //

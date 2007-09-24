@@ -127,9 +127,14 @@ void ThreadPrivateActions::ThreadCancelHandler(int sigid) {
 //-------------------------------------------------------------------------
 // standard start routine.
 //
-void ThreadPrivateActions::StartThread(void *data) {
+void ThreadPrivateActions::StartThread(void *data)
+{
 
     Thread *thread = static_cast<Thread *>(data);
+
+    ScopedLock<Mutex> lock(thread->_prvDataMutex);
+
+    if (thread->_prvData==0) return;
 
     AddThread(thread);
 
@@ -353,7 +358,9 @@ Thread::Thread() {
 //
 // Use: public.
 //
-Thread::~Thread() {
+Thread::~Thread()
+{
+    ScopedLock<Mutex> lock(_prvDataMutex); 
 
     DPRINTF(("(SPROC THREAD) %s:%d, In OpenThreads::Thread destructor\n",
 	__FILE__, __LINE__));
@@ -361,7 +368,8 @@ Thread::~Thread() {
     SprocThreadPrivateData *pd =
 	static_cast<SprocThreadPrivateData *>(_prvData);
 
-    if(pd->isRunning) {
+    if(pd->isRunning)
+    {
 
 	DPRINTF(("(SPROC THREAD) %s:%d, about to kill OpenThreads::Thread\n",
 		 __FILE__, __LINE__));
@@ -385,6 +393,7 @@ Thread::~Thread() {
 
     delete pd;
 
+    _prvData = 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -503,7 +512,12 @@ int Thread::start() {
 //
 // Use: public
 //
-int Thread::startThread() { return start(); }
+int Thread::startThread()
+{
+    ScopedLock<Mutex> lock(_prvDataMutex);
+    if (_prvData) return start(); 
+    else return 0;
+}
 
 //-----------------------------------------------------------------------------
 //

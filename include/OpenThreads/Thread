@@ -22,7 +22,7 @@
 
 #include <sys/types.h>
 
-#include <OpenThreads/Exports>
+#include <OpenThreads/Mutex>
 
 namespace OpenThreads {
 
@@ -372,6 +372,8 @@ private:
      *  Implementation-specific data
      */
     void * _prvData;
+    
+    Mutex _prvDataMutex;
     
     /**
      *  Master thread's priority, set by Thread::Init.

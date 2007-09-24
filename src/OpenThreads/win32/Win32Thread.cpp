@@ -91,8 +91,13 @@ namespace OpenThreads {
         static unsigned int __stdcall StartThread(void *data) {
 
             Thread *thread = static_cast<Thread *>(data);
+        
+            ScopedLock<Mutex> lock(thread->_prvDataMutex);
+
             Win32ThreadPrivateData *pd =
                 static_cast<Win32ThreadPrivateData *>(thread->_prvData);
+
+            if (thread->_prvData==0) return 0;
 
             TlsSetValue(Win32ThreadPrivateData::TLS.ID ,data);
             //---------------------------------------------------------------------
@@ -252,14 +257,22 @@ Thread::Thread() {
 //
 // Use: public.
 //
-Thread::~Thread() {
+Thread::~Thread()
+{
+    ScopedLock<Mutex> lock(_prvDataMutex); 
+
     Win32ThreadPrivateData *pd = static_cast<Win32ThreadPrivateData *>(_prvData);
-    if(pd->isRunning) {
+
+    if(pd->isRunning)
+    {
         std::cout<<"Error: Thread "<<this<<" still running in destructor"<<std::endl;
         pd->cancelMode = 0;
         cancel();
     }
+
     delete pd;
+    
+    _prvData = 0;
 }
 //-----------------------------------------------------------------------------
 //
@@ -334,7 +347,11 @@ int Thread::start() {
 }
 
 int Thread::startThread()
-{ return start(); }
+{
+    ScopedLock<Mutex> lock(_prvDataMutex);
+    if (_prvData) return start(); 
+    else return 0;
+}
 
 //-----------------------------------------------------------------------------
 //
