@@ -20,8 +20,6 @@
 #include <iostream>
 #include <process.h>
 
-#include <OpenThreads/ScopedLock>
-
 #if defined(_MSC_VER) && (_MSC_VER < 1300)
 #ifdef __SGI_STL
 using std::size_t;
@@ -94,8 +92,6 @@ namespace OpenThreads {
 
             Thread *thread = static_cast<Thread *>(data);
         
-            ScopedLock<Mutex> lock(thread->_prvDataMutex);
-
             Win32ThreadPrivateData *pd =
                 static_cast<Win32ThreadPrivateData *>(thread->_prvData);
 
@@ -108,6 +104,9 @@ namespace OpenThreads {
             SetThreadSchedulingParams(thread);
 
             pd->isRunning = true;
+            
+            // release the thread that created this thread.
+            pd->threadStartedBlock.release();
 
             try{
                 thread->run();
@@ -261,8 +260,6 @@ Thread::Thread() {
 //
 Thread::~Thread()
 {
-    ScopedLock<Mutex> lock(_prvDataMutex); 
-
     Win32ThreadPrivateData *pd = static_cast<Win32ThreadPrivateData *>(_prvData);
 
     if(pd->isRunning)
@@ -335,10 +332,15 @@ int Thread::start() {
     // 2) if not than we're in trouble anyway - nothing is protected 
     // pd->stackSizeLocked = true;
     unsigned int ID;
+    
+    pd->threadStartedBlock.reset();
 
     pd->tid.set( (void*)_beginthreadex(NULL,pd->stackSize,ThreadPrivateActions::StartThread,static_cast<void *>(this),0,&ID));
 
     pd->uniqueId = (int)ID;
+
+    // wait till the thread has actually started.
+    pd->threadStartedBlock.block();
 
     if(!pd->tid) {
         return -1;
@@ -350,7 +352,6 @@ int Thread::start() {
 
 int Thread::startThread()
 {
-    ScopedLock<Mutex> lock(_prvDataMutex);
     if (_prvData) return start(); 
     else return 0;
 }

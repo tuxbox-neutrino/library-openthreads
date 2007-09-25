@@ -24,6 +24,7 @@
 #include <stack>
 
 #include <OpenThreads/Thread>
+#include <OpenThreads/Block>
 #include "SprocThreadPrivateActions.h"
 
 namespace OpenThreads {
@@ -51,6 +52,8 @@ private:
     volatile bool stackSizeLocked;
 
     volatile bool isRunning;
+
+    Block threadStartedBlock;
 
     volatile bool isCanceled;
 

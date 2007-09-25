@@ -24,6 +24,7 @@
 #endif
 
 #include <OpenThreads/Thread>
+#include <OpenThreads/Block>
 #include "HandleHolder.h"
 
 namespace OpenThreads {
@@ -47,7 +48,9 @@ private:
     size_t stackSize;
     bool isRunning;
 
-	int  cancelMode; // 0 - deffered (default) 1-asynch 2-disabled  
+    Block threadStartedBlock;
+
+    int  cancelMode; // 0 - deffered (default) 1-asynch 2-disabled  
 
     bool detached;
 

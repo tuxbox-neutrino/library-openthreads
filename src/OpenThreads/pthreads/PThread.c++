@@ -38,7 +38,6 @@
 #endif
 
 #include <OpenThreads/Thread>
-#include <OpenThreads/ScopedLock>
 #include "PThreadPrivateData.h"
 
 #include <iostream>
@@ -110,13 +109,10 @@ private:
     static void *StartThread(void *data) {
 
 	Thread *thread = static_cast<Thread *>(data);
-        
-        ScopedLock<Mutex> lock(thread->_prvDataMutex);
-        
+
 	PThreadPrivateData *pd =
 	    static_cast<PThreadPrivateData *>(thread->_prvData);
             
-        if (thread->_prvData==0) return 0;
 
         if (pd->cpunum>=0)
         {
@@ -163,7 +159,12 @@ private:
 #endif // ] ALLOW_PRIORITY_SCHEDULING
 
         pd->isRunning = true;
+
+        // release the thread that created this thread.
+        pd->threadStartedBlock.release();
+
         thread->run();
+
         pd->isRunning = false;
 
 	pthread_cleanup_pop(0);
@@ -397,8 +398,6 @@ Thread::Thread() {
 //
 Thread::~Thread()
 {
-    ScopedLock<Mutex> lock(_prvDataMutex); 
-
     PThreadPrivateData *pd = static_cast<PThreadPrivateData *>(_prvData);
 
     if(pd->isRunning)
@@ -414,7 +413,6 @@ Thread::~Thread()
     delete pd;
     
     _prvData = 0;
-
 }
 
 Thread *Thread::CurrentThread()
@@ -630,9 +628,14 @@ int Thread::start() {
 	return status;
     }
 
+    pd->threadStartedBlock.reset();
+
     status = pthread_create(&(pd->tid), &thread_attr,
                            ThreadPrivateActions::StartThread,
                            static_cast<void *>(this));
+                           
+    // wait till the thread has actually started.
+    pd->threadStartedBlock.block();
 
     if(status != 0) {
 	return status;
@@ -652,7 +655,6 @@ int Thread::start() {
 //
 int Thread::startThread()
 {
-    ScopedLock<Mutex> lock(_prvDataMutex);
     if (_prvData) return start(); 
     else return 0;
 }

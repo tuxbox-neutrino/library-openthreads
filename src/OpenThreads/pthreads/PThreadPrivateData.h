@@ -21,6 +21,7 @@
 
 #include <pthread.h>
 #include <OpenThreads/Thread>
+#include <OpenThreads/Block>
 
 namespace OpenThreads {
 
@@ -49,6 +50,8 @@ private:
 
     volatile bool isRunning;
 
+    Block threadStartedBlock;
+
     volatile bool isCanceled;
 
     volatile bool idSet;
@@ -62,6 +65,7 @@ private:
     volatile int uniqueId;
 
     volatile int cpunum;
+    
 
     static int nextId;
 

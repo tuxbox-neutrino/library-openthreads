@@ -373,8 +373,6 @@ private:
      */
     void * _prvData;
     
-    Mutex _prvDataMutex;
-    
     /**
      *  Master thread's priority, set by Thread::Init.
      */

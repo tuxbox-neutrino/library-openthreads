@@ -27,7 +27,6 @@
 #include <unistd.h>
 #include <list>
 #include <OpenThreads/Thread>
-#include <OpenThreads/ScopedLock>
 #include "SprocMutexPrivateData.h"
 #include "SprocThreadPrivateData.h"
 #include "SprocThreadPrivateActions.h"
@@ -133,8 +132,6 @@ void ThreadPrivateActions::StartThread(void *data)
 
     Thread *thread = static_cast<Thread *>(data);
 
-    ScopedLock<Mutex> lock(thread->_prvDataMutex);
-
     if (thread->_prvData==0) return;
 
     AddThread(thread);
@@ -160,7 +157,12 @@ void ThreadPrivateActions::StartThread(void *data)
     pd->stackSizeLocked = true;
 
     pd->isRunning = true;
+    
+    // release the thread that created this thread.
+    pd->threadStartedBlock.release();
+    
     thread->run();
+
     pd->isRunning = false;
 
     RemoveThread(thread);
@@ -361,8 +363,6 @@ Thread::Thread() {
 //
 Thread::~Thread()
 {
-    ScopedLock<Mutex> lock(_prvDataMutex); 
-
     DPRINTF(("(SPROC THREAD) %s:%d, In OpenThreads::Thread destructor\n",
 	__FILE__, __LINE__));
 
@@ -485,6 +485,8 @@ int Thread::start() {
     SprocThreadPrivateData *pd =
 	static_cast<SprocThreadPrivateData *> (_prvData);
 
+    pd->threadStartedBlock.reset();
+
     int pid = sproc(ThreadPrivateActions::StartThread,
 		    PR_SALL,
 		    static_cast<void *>(this));
@@ -503,6 +505,10 @@ int Thread::start() {
 
     pd->pid = pid;
     pd->idSet = true;
+
+    // wait till the thread has actually started.
+    pd->threadStartedBlock.block();
+
     return 0;
 
 }
@@ -515,7 +521,6 @@ int Thread::start() {
 //
 int Thread::startThread()
 {
-    ScopedLock<Mutex> lock(_prvDataMutex);
     if (_prvData) return start(); 
     else return 0;
 }
