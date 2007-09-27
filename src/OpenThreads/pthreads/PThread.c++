@@ -28,9 +28,15 @@
 #include <sys/resource.h>
 #include <sys/unistd.h>
 #endif
+#if defined(__sgi)
+#include <unistd.h>
+#endif
+#if defined(__hpux)
+#include <sys/mpctl.h>
+#endif
 
-#if defined (__linux__)
-    #include <sched.h>
+#if defined(HAVE_THREE_PARAM_SCHED_SETAFFINITY) || defined(HAVE_TWO_PARAM_SCHED_SETAFFINITY)
+#    include <sched.h>
 #endif
 #if defined (__FreeBSD__) || defined (__APPLE__) || defined (__MACH__)
 	#include <sys/types.h>
@@ -116,23 +122,21 @@ private:
 
         if (pd->cpunum>=0)
         {
-            #ifdef __sgi
-            
-                pthread_setrunon_np( pd->cpunum );
-                
-            #elif defined (__linux__) && defined(CPU_SET)
+#if defined(__sgi)
+            pthread_setrunon_np( pd->cpunum );
+#elif defined(HAVE_PTHREAD_SETAFFINITY_NP) || defined(HAVE_THREE_PARAM_SCHED_SETAFFINITY) || defined(HAVE_TWO_PARAM_SCHED_SETAFFINITY)
+            cpu_set_t cpumask;
+            CPU_ZERO( &cpumask );
+            CPU_SET( pd->cpunum, &cpumask );
 
-                cpu_set_t cpumask;
-                CPU_ZERO( &cpumask );
-                CPU_SET( pd->cpunum, &cpumask );
-
-                #if defined(COMPILE_USING_TWO_PARAM_sched_setaffinity)
-                    sched_setaffinity( 0, &cpumask );
-                #else
-                    sched_setaffinity( 0, sizeof(cpumask), &cpumask );
-                #endif
-                
-            #endif
+#if defined(HAVE_PTHREAD_SETAFFINITY_NP)
+            pthread_setaffinity_np( pthread_self(), sizeof(cpumask), &cpumask);
+#elif defined(HAVE_THREE_PARAM_SCHED_SETAFFINITY)
+            sched_setaffinity( 0, sizeof(cpumask), &cpumask );
+#elif defined(HAVE_TWO_PARAM_SCHED_SETAFFINITY)
+            sched_setaffinity( 0, &cpumask );
+#endif
+#endif
         }
         
 
@@ -340,7 +344,7 @@ private:
 //
 int Thread::SetConcurrency(int concurrencyLevel) {
 
-#if defined (__sgi) || defined (__sun)
+#if defined (HAVE_PTHREAD_SETCONCURRENCY)
     return pthread_setconcurrency(concurrencyLevel);
 #else
     return -1;
@@ -356,7 +360,7 @@ int Thread::SetConcurrency(int concurrencyLevel) {
 //
 int Thread::GetConcurrency() {
 
-#if defined (__sgi) || defined (__sun)
+#if defined (HAVE_PTHREAD_GETCONCURRENCY)
     return pthread_getconcurrency();
 #else
     return -1;
@@ -532,20 +536,20 @@ int Thread::setProcessorAffinity(unsigned int cpunum)
     status = pthread_attr_setscope( &thread_attr, PTHREAD_SCOPE_BOUND_NP );
     return status;
 
-#elif defined (__linux__) && defined(CPU_SET)
+#elif defined(HAVE_PTHREAD_SETAFFINITY_NP) || defined(HAVE_THREE_PARAM_SCHED_SETAFFINITY) || defined(HAVE_TWO_PARAM_SCHED_SETAFFINITY)
 
-  
     if (pd->isRunning && Thread::CurrentThread()==this)
     {
         cpu_set_t cpumask;
         CPU_ZERO( &cpumask );
         CPU_SET( pd->cpunum, &cpumask );
-
-        #if defined(COMPILE_USING_TWO_PARAM_sched_setaffinity)
-            return sched_setaffinity( 0, &cpumask );
-        #else
-            return sched_setaffinity( 0, sizeof(cpumask), &cpumask );
-        #endif
+#if defined(HAVE_PTHREAD_SETAFFINITY_NP)
+        pthread_setaffinity_np (pthread_self(), sizeof(cpumask), &cpumask);
+#elif defined(HAVE_THREE_PARAM_SCHED_SETAFFINITY)
+        sched_setaffinity( 0, sizeof(cpumask), &cpumask );
+#elif defined(HAVE_TWO_PARAM_SCHED_SETAFFINITY)
+        sched_setaffinity( 0, &cpumask );
+#endif
     }
 
     return -1;
@@ -895,9 +899,13 @@ void Thread::printSchedulingInfo() {
 //
 int Thread::YieldCurrentThread()
 {
-
+#if defined(HAVE_PTHREAD_YIELD)
+    return pthread_yield();
+#elif defined(HAVE_SCHED_YIELD)
     return sched_yield();
-
+#else
+    return -1;
+#endif
 }
 
 // Description:  sleep
@@ -918,20 +926,36 @@ int Thread::microSleep(unsigned int microsec)
 int OpenThreads::GetNumberOfProcessors()
 {
 #if defined(__linux__)
-    return sysconf(_SC_NPROCESSORS_CONF);
+   long ret = sysconf(_SC_NPROCESSORS_ONLN);
+   if (ret == -1)
+      return 0;
+   return ret;
+#elif defined(__sun__)
+   long ret = sysconf(_SC_NPROCESSORS_ONLN);
+   if (ret == -1)
+      return 0;
+   return ret;
+#elif defined(__sgi)
+   long ret = sysconf(_SC_NPROC_ONLN);
+   if (ret == -1)
+      return 0;
+   return ret;
+#elif defined(__hpux)
+   int ret = mpctl(MPC_GETNUMSPUS, 0, NULL);
+   if (ret == -1)
+      return 0;
+   return ret;
+#elif defined(__FreeBSD__) || defined(__APPLE__) || defined(__MACH__)
+   uint64_t num_cpus = 0;
+   size_t num_cpus_length = sizeof(num_cpus);
+#if defined(__FreeBSD__)
+   sysctlbyname("hw.ncpu", &num_cpus, &num_cpus_length, NULL, 0);			
 #else
-	#if defined(__FreeBSD__) || defined(__APPLE__) || defined(__MACH__)
-		uint64_t num_cpus = 0;
-		size_t num_cpus_length = sizeof(num_cpus);
-		#if defined(__FreeBSD__)
-			sysctlbyname("hw.ncpu", &num_cpus, &num_cpus_length, NULL, 0);			
-		#else
-			sysctlbyname("hw.activecpu", &num_cpus, &num_cpus_length, NULL, 0);
-		#endif
-		return num_cpus;
-	#else
-		return 1;
-	#endif
+   sysctlbyname("hw.activecpu", &num_cpus, &num_cpus_length, NULL, 0);
+#endif
+   return num_cpus;
+#else
+   return 1;
 #endif
 }
 
@@ -948,19 +972,19 @@ int OpenThreads::SetProcessorAffinityOfCurrentThread(unsigned int cpunum)
     }
     else
     {
-    #if defined (__linux__) && defined(CPU_SET)
-
+#if defined(HAVE_PTHREAD_SETAFFINITY_NP) || defined(HAVE_THREE_PARAM_SCHED_SETAFFINITY) || defined(HAVE_TWO_PARAM_SCHED_SETAFFINITY)
         cpu_set_t cpumask;
         CPU_ZERO( &cpumask );
         CPU_SET( cpunum, &cpumask );
 
-        #if defined(COMPILE_USING_TWO_PARAM_sched_setaffinity)
-            return sched_setaffinity( 0, &cpumask );
-        #else
-            return sched_setaffinity( 0, sizeof(cpumask), &cpumask );
-        #endif
-
-    #endif
+#if defined(HAVE_PTHREAD_SETAFFINITY_NP)
+        pthread_setaffinity_np( pthread_self(), sizeof(cpumask), &cpumask);
+#elif defined(HAVE_THREE_PARAM_SCHED_SETAFFINITY)
+        sched_setaffinity( 0, sizeof(cpumask), &cpumask );
+#elif defined(HAVE_TWO_PARAM_SCHED_SETAFFINITY)
+        sched_setaffinity( 0, &cpumask );
+#endif
+#endif
     }
     
     return -1;
