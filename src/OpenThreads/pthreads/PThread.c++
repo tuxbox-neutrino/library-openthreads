@@ -900,7 +900,8 @@ void Thread::printSchedulingInfo() {
 int Thread::YieldCurrentThread()
 {
 #if defined(HAVE_PTHREAD_YIELD)
-    return pthread_yield();
+    pthread_yield();
+    return 0;
 #elif defined(HAVE_SCHED_YIELD)
     return sched_yield();
 #else
