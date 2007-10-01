@@ -20,8 +20,8 @@ extern "C" {
 
 #define OPENTHREADS_MAJOR_VERSION 1
 #define OPENTHREADS_MINOR_VERSION 9
-#define OPENTHREADS_PATCH_VERSION 6
-#define OPENTHREADS_SOVERSION 8
+#define OPENTHREADS_PATCH_VERSION 7
+#define OPENTHREADS_SOVERSION 9
 
 /** OpenThreadsGetVersion() returns the library version number.
  * Numbering convention : OpenThreads-1.0 will return 1.0 from OpenThreadsGetVersion. */
