@@ -1,0 +1,6 @@
+[submodule "src"]
+	path = src
+	url = git@coolstreamtech.de:cst-public-libraries-openthreads-src.git
+[submodule "include"]
+	path = include
+	url = git@coolstreamtech.de:cst-public-libraries-openthreads-include.git
