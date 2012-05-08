@@ -1,0 +1,7 @@
+To fetch all necessary submodules you need to run the following commands:
+    git submodule init
+    git submodule update
+
+After this process, you've obtained the remaining files to successfully compile openthreads.
+
+Thanks for your attention..
