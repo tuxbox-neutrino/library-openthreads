@@ -1,6 +1,6 @@
 [submodule "src"]
 	path = src
-	url = ../cst-public-libraries-openthreads-src.git
+	url = ../library-openthreads-src.git
 [submodule "include"]
 	path = include
-	url = ../cst-public-libraries-openthreads-include.git
+	url = ../library-openthreads-include.git
